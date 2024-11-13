@@ -6,9 +6,10 @@ interface Props {
   readingType: ReadingType;
   isDarkMode: boolean;
   onReadingComplete: (reading: string) => void;
+  onReadingRequest: () => boolean;
 }
 
-const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComplete }) => {
+const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComplete, onReadingRequest }) => {
   const [question, setQuestion] = useState('');
   const [name, setName] = useState('');
   const [birthdate, setBirthdate] = useState('');
@@ -29,6 +30,11 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!onReadingRequest()) {
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -48,6 +54,11 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getReadingTitle = (type: ReadingType) => {
+    if (type === 'iching') return 'I Ching Reading';
+    return type.charAt(0).toUpperCase() + type.slice(1) + ' Reading';
   };
 
   const renderFields = () => {
@@ -137,7 +148,7 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
       <h2 className={`text-2xl font-semibold mb-6 ${
         isDarkMode ? 'text-white' : 'text-gray-800'
       }`}>
-        {readingType.charAt(0).toUpperCase() + readingType.slice(1)} Reading
+        {getReadingTitle(readingType)}
       </h2>
       {renderFields()}
       {error && (
@@ -150,9 +161,9 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
         disabled={isLoading}
         className={`w-full py-3 px-6 rounded-lg ${
           isDarkMode
-            ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
-            : 'bg-indigo-500 hover:bg-indigo-600 text-white'
-        } transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+            ? 'bg-indigo-600 hover:bg-indigo-700'
+            : 'bg-indigo-500 hover:bg-indigo-600'
+        } text-white transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
       >
         {isLoading ? 'Generating Reading...' : 'Get Your Reading'}
       </button>

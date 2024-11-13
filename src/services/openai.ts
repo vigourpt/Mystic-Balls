@@ -1,18 +1,10 @@
 import OpenAI from 'openai';
 import { OPENAI_CONFIG } from '../config/openai';
 
-let openai: OpenAI | null = null;
-
-export const initializeOpenAI = () => {
-  if (!OPENAI_CONFIG.apiKey) return null;
-  
-  openai = new OpenAI({
-    apiKey: OPENAI_CONFIG.apiKey,
-    dangerouslyAllowBrowser: true
-  });
-  
-  return openai;
-};
+const openai = new OpenAI({
+  apiKey: OPENAI_CONFIG.apiKey,
+  dangerouslyAllowBrowser: true
+});
 
 const formatResponse = (text: string): string => {
   // Add extra newline before headers
@@ -31,9 +23,8 @@ export const getReading = async (
   readingType: string,
   userInput: Record<string, string>
 ): Promise<string> => {
-  if (!openai) {
-    openai = initializeOpenAI();
-    if (!openai) throw new Error('OpenAI API key not set');
+  if (!OPENAI_CONFIG.apiKey) {
+    throw new Error('OpenAI API key not configured');
   }
 
   const prompts: Record<string, string> = {
