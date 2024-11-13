@@ -1,0 +1,1 @@
+export type ReadingType = 'tarot' | 'numerology' | 'astrology' | 'oracle' | 'runes' | 'iching';
