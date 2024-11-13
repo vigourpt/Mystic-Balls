@@ -1,0 +1,1 @@
+export const FREE_READINGS_LIMIT = 5;

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { UserUsage } from '../types';
 import { getUserProfile, incrementReadingCount, updatePremiumStatus } from '../services/firebase';
+import { FREE_READINGS_LIMIT } from '../config/constants';
 
-const FREE_READINGS_LIMIT = 10;
+const ANONYMOUS_STORAGE_KEY = 'anonymous_readings_count';
 
 export const useUsageTracking = (userId: string | null) => {
   const [usage, setUsage] = useState<UserUsage>({
@@ -13,7 +14,9 @@ export const useUsageTracking = (userId: string | null) => {
   useEffect(() => {
     const loadUsage = async () => {
       if (!userId) {
-        setUsage({ readingsCount: 0, isPremium: false });
+        // For anonymous users, get count from localStorage
+        const anonymousCount = parseInt(localStorage.getItem(ANONYMOUS_STORAGE_KEY) || '0');
+        setUsage({ readingsCount: anonymousCount, isPremium: false });
         return;
       }
       
@@ -31,7 +34,16 @@ export const useUsageTracking = (userId: string | null) => {
   }, [userId]);
 
   const incrementUsage = async () => {
-    if (!userId) return;
+    if (!userId) {
+      // For anonymous users, store count in localStorage
+      const newCount = usage.readingsCount + 1;
+      localStorage.setItem(ANONYMOUS_STORAGE_KEY, newCount.toString());
+      setUsage(prev => ({
+        ...prev,
+        readingsCount: newCount,
+      }));
+      return;
+    }
 
     await incrementReadingCount(userId);
     setUsage(prev => ({
@@ -42,12 +54,13 @@ export const useUsageTracking = (userId: string | null) => {
   };
 
   const hasReachedLimit = () => {
-    if (!userId) return true;
+    if (!userId) {
+      return usage.readingsCount >= FREE_READINGS_LIMIT;
+    }
     return !usage.isPremium && usage.readingsCount >= FREE_READINGS_LIMIT;
   };
 
   const remainingReadings = () => {
-    if (!userId) return 0;
     if (usage.isPremium) return Infinity;
     return Math.max(0, FREE_READINGS_LIMIT - usage.readingsCount);
   };

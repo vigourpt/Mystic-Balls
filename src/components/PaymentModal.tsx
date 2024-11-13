@@ -41,7 +41,7 @@ const PaymentModal: React.FC<Props> = ({ isOpen, onClose, isDarkMode, onSubscrib
             >
               <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
               <div className="text-3xl font-bold mb-4">
-                ${plan.price}
+                £{plan.price}
                 <span className={`text-sm ${
                   isDarkMode ? 'text-indigo-200' : 'text-gray-600'
                 }`}>/month</span>

@@ -9,6 +9,7 @@ import Advertisement from './components/Advertisement';
 import { ReadingType, PaymentPlan } from './types';
 import { useAuth } from './hooks/useAuth';
 import { useUsageTracking } from './hooks/useUsageTracking';
+import { FREE_READINGS_LIMIT } from './config/constants';
 
 function App() {
   const [selectedReading, setSelectedReading] = useState<ReadingType | null>(null);
@@ -37,13 +38,12 @@ function App() {
   };
 
   const handleReadingRequest = () => {
-    if (!user) {
-      setIsLoginModalOpen(true);
-      return false;
-    }
-    
     if (hasReachedLimit()) {
-      setIsPaymentModalOpen(true);
+      if (!user) {
+        setIsLoginModalOpen(true);
+      } else {
+        setIsPaymentModalOpen(true);
+      }
       return false;
     }
     
@@ -95,14 +95,13 @@ function App() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => setIsLoginModalOpen(true)}
-                className={`px-4 py-2 rounded-lg ${
+              remainingReadings() < FREE_READINGS_LIMIT && (
+                <div className={`px-4 py-2 rounded-lg ${
                   isDarkMode ? 'bg-indigo-800 text-white' : 'bg-indigo-200 text-gray-800'
-                } hover:opacity-80 transition-opacity`}
-              >
-                Sign In
-              </button>
+                }`}>
+                  {remainingReadings()} free readings left
+                </div>
+              )
             )}
             <button
               onClick={toggleDarkMode}

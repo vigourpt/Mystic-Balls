@@ -11,7 +11,7 @@ service cloud.firestore {
     }
     
     function hasNotReachedFreeLimit(userData) {
-      return userData.data.readingsCount < 10 || userData.data.isPremium == true;
+      return userData.data.readingsCount < 5 || userData.data.isPremium == true;
     }
 
     // Users collection rules
@@ -19,7 +19,7 @@ service cloud.firestore {
       // Allow read if user is authenticated and owns the document
       allow read: if isAuthenticated() && isOwner(userId);
       
-      // Allow create for new users (including anonymous)
+      // Allow create for new users
       allow create: if isAuthenticated() && isOwner(userId);
       
       // Allow updates with specific conditions
