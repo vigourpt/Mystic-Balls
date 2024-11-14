@@ -7,15 +7,9 @@ const openai = new OpenAI({
 });
 
 const formatResponse = (text: string): string => {
-  // Add extra newline before headers
   text = text.replace(/\n(#{1,3})/g, '\n\n$1');
-  
-  // Add extra newline between paragraphs
   text = text.replace(/\n\n/g, '\n\n\n');
-  
-  // Ensure consistent spacing around sections
   text = text.replace(/\n{4,}/g, '\n\n\n');
-  
   return text;
 };
 
@@ -33,7 +27,11 @@ export const getReading = async (
     astrology: `As an astrologer, provide an insightful reading for someone born on ${userInput.birthdate}${userInput.birthTime ? ` at ${userInput.birthTime}` : ''}${userInput.location ? ` in ${userInput.location}` : ''}. Focus on personality traits, life path, and current influences. Skip technical aspects and focus on practical insights and guidance. Use markdown headers (###) for each section, and ensure paragraphs are well-separated.`,
     oracle: `As an oracle card reader, provide clear guidance for this question: ${userInput.question}. Draw three cards and focus only on their message and meaning for the querent. Keep the interpretation practical and actionable. Use markdown headers (###) for each card's section, and ensure paragraphs are well-separated.`,
     runes: `As a rune caster, provide clear guidance for this question: ${userInput.question}. Cast three runes and focus only on their message and practical meaning for the situation. Skip technical details about the runes themselves. Use markdown headers (###) for each rune's section, and ensure paragraphs are well-separated.`,
-    iching: `As an I Ching expert, provide clear guidance for this question: ${userInput.question}. Focus only on the practical interpretation and wisdom for the situation. Skip technical details about hexagram numbers and structure. Use markdown headers (###) for each section, and ensure paragraphs are well-separated.`
+    iching: `As an I Ching expert, provide clear guidance for this question: ${userInput.question}. Focus only on the practical interpretation and wisdom for the situation. Skip technical details about hexagram numbers and structure. Use markdown headers (###) for each section, and ensure paragraphs are well-separated.`,
+    angelNumbers: `As an angel number interpreter, analyze the number ${userInput.number} that keeps appearing to ${userInput.name}. Provide deep spiritual insights about its divine meaning and guidance. Focus on the practical messages and spiritual significance. Use markdown headers (###) for different aspects of the interpretation.`,
+    horoscope: `As an astrologer, provide a detailed daily horoscope for ${userInput.zodiacSign} on ${userInput.date}. Include insights about love, career, and personal growth. Make the guidance practical and actionable. Use markdown headers (###) for different life areas.`,
+    dreams: `As a dream interpreter, analyze this dream: ${userInput.dream}. Provide deep psychological and spiritual insights about its meaning. Focus on practical implications and guidance. Use markdown headers (###) for different symbols and overall meaning.`,
+    magic8ball: `As a mystical oracle, provide a clear yes/no answer to: ${userInput.question}. Then provide a brief, mystical explanation for the answer in an engaging way. Keep it concise but meaningful. Use markdown headers (###) for the answer and explanation.`
   };
 
   const response = await openai.chat.completions.create({

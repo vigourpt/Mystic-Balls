@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { ReadingType } from '../types';
 import { getReading } from '../services/openai';
+import AngelNumbersForm from './forms/AngelNumbersForm';
+import AstrologyForm from './forms/AstrologyForm';
+import DreamForm from './forms/DreamForm';
+import HoroscopeForm from './forms/HoroscopeForm';
+import NumerologyForm from './forms/NumerologyForm';
+import QuestionForm from './forms/QuestionForm';
+import { FormValues } from './forms/types';
 
 interface Props {
   readingType: ReadingType;
@@ -9,12 +16,13 @@ interface Props {
   onReadingRequest: () => boolean;
 }
 
-const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComplete, onReadingRequest }) => {
-  const [question, setQuestion] = useState('');
-  const [name, setName] = useState('');
-  const [birthdate, setBirthdate] = useState('');
-  const [birthTime, setBirthTime] = useState('');
-  const [location, setLocation] = useState('');
+const ReadingForm: React.FC<Props> = ({
+  readingType,
+  isDarkMode,
+  onReadingComplete,
+  onReadingRequest
+}) => {
+  const [formValues, setFormValues] = useState<FormValues>({});
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -28,6 +36,10 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
     isDarkMode ? 'text-indigo-200' : 'text-gray-700'
   }`;
 
+  const handleInputChange = (field: string, value: string) => {
+    setFormValues(prev => ({ ...prev, [field]: value }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -40,11 +52,8 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
 
     try {
       const userInput = {
-        question,
-        name,
-        birthdate,
-        birthTime,
-        location
+        ...formValues,
+        date: new Date().toISOString().split('T')[0]
       };
 
       const reading = await getReading(readingType, userInput);
@@ -57,85 +66,36 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
   };
 
   const getReadingTitle = (type: ReadingType) => {
-    if (type === 'iching') return 'I Ching Reading';
-    return type.charAt(0).toUpperCase() + type.slice(1) + ' Reading';
+    switch (type) {
+      case 'iching': return 'I Ching Reading';
+      case 'angelNumbers': return 'Angel Numbers Reading';
+      case 'magic8ball': return 'Magic 8 Ball';
+      default: return type.charAt(0).toUpperCase() + type.slice(1) + ' Reading';
+    }
   };
 
-  const renderFields = () => {
+  const renderForm = () => {
+    const formProps = {
+      isDarkMode,
+      inputClassName,
+      labelClassName,
+      values: formValues,
+      onChange: handleInputChange
+    };
+
     switch (readingType) {
       case 'numerology':
-        return (
-          <>
-            <div className="mb-4">
-              <label className={labelClassName}>Full Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className={inputClassName}
-                placeholder="Enter your full name"
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className={labelClassName}>Birth Date</label>
-              <input
-                type="date"
-                value={birthdate}
-                onChange={(e) => setBirthdate(e.target.value)}
-                className={inputClassName}
-                required
-              />
-            </div>
-          </>
-        );
+        return <NumerologyForm {...formProps} />;
       case 'astrology':
-        return (
-          <>
-            <div className="mb-4">
-              <label className={labelClassName}>Birth Date</label>
-              <input
-                type="date"
-                value={birthdate}
-                onChange={(e) => setBirthdate(e.target.value)}
-                className={inputClassName}
-                required
-              />
-            </div>
-            <div className="mb-4">
-              <label className={labelClassName}>Birth Time (optional)</label>
-              <input
-                type="time"
-                value={birthTime}
-                onChange={(e) => setBirthTime(e.target.value)}
-                className={inputClassName}
-              />
-            </div>
-            <div className="mb-4">
-              <label className={labelClassName}>Birth Location (optional)</label>
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className={inputClassName}
-                placeholder="City, Country"
-              />
-            </div>
-          </>
-        );
+        return <AstrologyForm {...formProps} />;
+      case 'angelNumbers':
+        return <AngelNumbersForm {...formProps} />;
+      case 'horoscope':
+        return <HoroscopeForm {...formProps} />;
+      case 'dreams':
+        return <DreamForm {...formProps} />;
       default:
-        return (
-          <div className="mb-4">
-            <label className={labelClassName}>Your Question</label>
-            <textarea
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              className={`${inputClassName} h-32 resize-none`}
-              placeholder="What would you like to know?"
-              required
-            />
-          </div>
-        );
+        return <QuestionForm {...formProps} />;
     }
   };
 
@@ -150,7 +110,7 @@ const ReadingForm: React.FC<Props> = ({ readingType, isDarkMode, onReadingComple
       }`}>
         {getReadingTitle(readingType)}
       </h2>
-      {renderFields()}
+      {renderForm()}
       {error && (
         <div className="mb-4 p-3 rounded-lg bg-red-500/10 text-red-500 text-sm">
           {error}

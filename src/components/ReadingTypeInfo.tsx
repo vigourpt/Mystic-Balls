@@ -16,7 +16,7 @@ const ReadingTypeInfo: React.FC<Props> = ({ isDarkMode }) => {
     },
     {
       title: "Astrology Reading",
-      content: "Astrology examines the positions of celestial bodies at the time of your birth to understand their influence on your life. Through analysis of your sun sign, moon sign, rising sign, and planetary aspects, astrology provides insights into your personality, relationships, career prospects, and life cycles. This ancient practice has guided decision-making for thousands of years."
+      content: "Astrology examines the positions of celestial bodies at the time of your birth to understand their influence on your life. Through analysis of your sun sign, moon sign, rising sign, and planetary aspects, astrology provides insights into your personality, relationships, career prospects, and life cycles."
     },
     {
       title: "Oracle Cards Reading",
@@ -24,11 +24,27 @@ const ReadingTypeInfo: React.FC<Props> = ({ isDarkMode }) => {
     },
     {
       title: "Runes Reading",
-      content: "Runes are ancient Norse symbols used for divination and guidance. Each of the 24 runes in the Elder Futhark system carries powerful meanings and energies. Rune readings offer insights into life situations, personal growth, and future possibilities, drawing upon centuries-old Nordic wisdom and mystical traditions."
+      content: "Runes are ancient Norse symbols used for divination and guidance. Each of the 24 runes in the Elder Futhark system carries powerful meanings and energies. Rune readings offer insights into life situations, personal growth, and future possibilities, drawing upon centuries-old Nordic wisdom."
     },
     {
       title: "I Ching Reading",
       content: "The I Ching, or 'Book of Changes,' is an ancient Chinese divination system with over 3,000 years of history. Through a process of casting hexagrams, the I Ching provides profound wisdom and guidance for life's questions. Each reading draws upon Taoist philosophy to offer insights into situations, relationships, and personal development."
+    },
+    {
+      title: "Angel Numbers",
+      content: "Angel numbers are sequences of numbers that carry divine guidance by referring to specific numerological meanings. The appearance of recurring numbers is believed to be a sign from guardian angels or spiritual guides, offering messages of guidance, reassurance, and divine support in your life journey."
+    },
+    {
+      title: "Daily Horoscope",
+      content: "Daily horoscopes provide personalized astrological guidance based on your zodiac sign and the current planetary positions. These readings offer insights into various aspects of your day, including love, career, and personal growth, helping you navigate daily challenges and opportunities."
+    },
+    {
+      title: "Dream Analysis",
+      content: "Dream interpretation explores the symbolic meanings and messages hidden within your dreams. By analyzing dream symbols, themes, and emotions, this practice helps uncover subconscious insights, process emotions, and receive guidance from your inner wisdom."
+    },
+    {
+      title: "Magic 8 Ball",
+      content: "The Magic 8 Ball offers quick, mystical answers to yes/no questions. While playful in nature, this divination tool can provide surprising insights and guidance, helping you tap into your intuition and consider different perspectives on your questions."
     }
   ];
 

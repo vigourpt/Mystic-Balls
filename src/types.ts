@@ -1,4 +1,4 @@
-export type ReadingType = 'tarot' | 'numerology' | 'astrology' | 'oracle' | 'runes' | 'iching';
+export type ReadingType = 'tarot' | 'numerology' | 'astrology' | 'oracle' | 'runes' | 'iching' | 'angelNumbers' | 'horoscope' | 'dreams' | 'magic8ball';
 
 export interface UserUsage {
   readingsCount: number;

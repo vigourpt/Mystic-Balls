@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Moon, Sun, ScrollText, Hash, Stars, Scroll, Dice3, BookHeart, LogOut } from 'lucide-react';
+import { Moon, Sun, ScrollText, Hash, Stars, Scroll, Dice3, BookHeart, LogOut, Calculator, Sparkles, Cloud, CircleDot } from 'lucide-react';
 import ReadingSelector from './components/ReadingSelector';
 import ReadingForm from './components/ReadingForm';
 import ReadingOutput from './components/ReadingOutput';
@@ -28,6 +28,10 @@ function App() {
     { id: 'oracle', name: 'Oracle Cards', icon: BookHeart, description: 'Receive guidance through mystical oracle messages' },
     { id: 'runes', name: 'Runes', icon: Scroll, description: 'Ancient Norse wisdom for modern guidance' },
     { id: 'iching', name: 'I Ching', icon: Dice3, description: 'Connect with ancient Chinese divination wisdom' },
+    { id: 'angelNumbers', name: 'Angel Numbers', icon: Calculator, description: 'Decode divine messages in recurring numbers' },
+    { id: 'horoscope', name: 'Daily Horoscope', icon: Sparkles, description: 'Your personalized daily celestial guidance' },
+    { id: 'dreams', name: 'Dream Analysis', icon: Cloud, description: 'Uncover the hidden meanings in your dreams' },
+    { id: 'magic8ball', name: 'Magic 8 Ball', icon: CircleDot, description: 'Quick answers to yes/no questions' }
   ];
 
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
@@ -51,8 +55,6 @@ function App() {
   };
 
   const handleSubscribe = async (plan: PaymentPlan) => {
-    // TODO: Integrate with your payment processor (e.g., Stripe)
-    // For now, we'll just simulate a successful subscription
     setPremiumStatus(true);
     setIsPaymentModalOpen(false);
   };
