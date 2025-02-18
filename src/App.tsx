@@ -19,6 +19,7 @@ import { ONBOARDING_STEPS } from './config/tutorial';
 import { Step } from './types';
 import ReadingOutput from './components/ReadingOutput';
 import FAQ from './components/FAQ';
+import { UserStatus } from './components/UserStatus/UserStatus';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -167,6 +168,7 @@ const App: React.FC = () => {
         ? 'bg-gradient-to-br from-indigo-950 via-purple-900 to-blue-950' 
         : 'bg-gradient-to-br from-indigo-100 via-purple-100 to-blue-100'
     }`}>
+      <UserStatus />
       <Header
         user={user}
         isDarkMode={isDarkMode}
