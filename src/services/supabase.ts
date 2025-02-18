@@ -184,6 +184,21 @@ export const updatePremiumStatus = async (userId: string, isPremium: boolean): P
   }
 };
 
+export const setUserPremiumStatus = async (email: string): Promise<void> => {
+  const { error } = await supabase
+    .from('user_profiles')  // Make sure this matches your table name
+    .update({ 
+      is_premium: true,
+      updated_at: new Date().toISOString()
+    })
+    .eq('email', email);
+
+  if (error) {
+    console.error('Error setting premium status:', error);
+    throw error;
+  }
+};
+
 export const clearAllAuthState = async () => {
   try {
     // Clear Supabase session
