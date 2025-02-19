@@ -27,3 +27,29 @@ export const checkProject = async () => {
     throw error;
   }
 };
+
+export const decrementFreeReadings = async (userId: string): Promise<void> => {
+  // First get the current count
+  const { data: profile } = await supabaseClient
+    .from('user_profiles')
+    .select('free_readings_remaining')
+    .eq('id', userId)
+    .single();
+
+  if (!profile || !profile.free_readings_remaining || profile.free_readings_remaining <= 0) {
+    throw new Error('No free readings remaining');
+  }
+
+  const { error } = await supabaseClient
+    .from('user_profiles')
+    .update({
+      free_readings_remaining: profile.free_readings_remaining - 1,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', userId);
+
+  if (error) {
+    console.error('Error decrementing free readings:', error);
+    throw error;
+  }
+};

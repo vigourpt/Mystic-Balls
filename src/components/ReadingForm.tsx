@@ -21,12 +21,17 @@ export const ReadingForm = ({ readingType, onSubmit, isDarkMode = true }: Props)
     ? 'bg-indigo-800/50 border-indigo-700 text-white placeholder-gray-400'
     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500';
 
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       await onSubmit(formData);
     } catch (error) {
       console.error('Error submitting form:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,9 +93,17 @@ export const ReadingForm = ({ readingType, onSubmit, isDarkMode = true }: Props)
         <div className="flex justify-center">
           <button
             type="submit"
-            className="px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-400 text-lg font-semibold"
+            disabled={isLoading}
+            className={`px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-400 text-lg font-semibold flex items-center justify-center gap-2 ${isLoading ? 'opacity-75 cursor-not-allowed' : ''}`}
           >
-            Get Your Reading
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                Getting your reading...
+              </>
+            ) : (
+              'Get Your Reading'
+            )}
           </button>
         </div>
       </form>

@@ -9,7 +9,7 @@ import PaymentModal from './components/PaymentModal';
 import ReadingSelector from './components/ReadingSelector';
 import ReadingForm from './components/ReadingForm';
 import { PricingPlan, ReadingType } from './types';
-import { checkProject, supabaseClient } from './lib/supabaseClient';
+import { checkProject, supabaseClient, decrementFreeReadings } from './lib/supabaseClient';
 import { createClient } from '@supabase/supabase-js';
 import { UserProfile } from './services/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -51,10 +51,10 @@ const App: React.FC = () => {
       setShowLoginModal(true);
       return;
     }
-
+  
     setIsLoading(true);
     setReadingOutput(null);
-
+  
     try {
       const response = await fetch('/.netlify/functions/getReading', {
         method: 'POST',
@@ -67,7 +67,7 @@ const App: React.FC = () => {
           userInput: formData,
         }),
       });
-
+  
       if (!response.ok) {
         if (response.status === 402) {
           setShowPaymentModal(true);
@@ -75,12 +75,26 @@ const App: React.FC = () => {
         }
         throw new Error('Failed to get reading');
       }
-
+  
       const data = await response.json();
       if (data.error) {
         throw new Error(data.error);
       }
       setReadingOutput(data.reading);
+  
+      // Decrement free readings count after successful reading
+      if (!profiles?.[0]?.is_premium) {
+        await decrementFreeReadings(user.id);
+        // Refresh profiles to update the UI
+        const { data: updatedProfile } = await supabaseClient
+          .from('user_profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        if (updatedProfile) {
+          setProfiles([updatedProfile]);
+        }
+      }
     } catch (error) {
       console.error('Error getting reading:', error);
       setReadingOutput(error instanceof Error ? error.message : "There was an error getting your reading. Please try again.");

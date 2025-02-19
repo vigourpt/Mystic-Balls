@@ -19,7 +19,12 @@ const ReadingOutput: React.FC<Props> = ({ readingType, isDarkMode, reading, isLo
           ? 'bg-indigo-900/30 backdrop-blur-sm'
           : 'bg-white/80 backdrop-blur-sm'
       } shadow-xl`}>
-        <LoadingSpinner />
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <LoadingSpinner />
+          <p className={`text-sm ${isDarkMode ? 'text-indigo-200' : 'text-indigo-600'}`}>
+            Getting your reading... This may take up to 30 seconds
+          </p>
+        </div>
       </div>
     );
   }
