@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { PricingPlan } from '../types';
 import { PAYMENT_PLANS } from '../config/plans';
@@ -22,19 +22,41 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
 
   const handleSubscribe = async (plan: PricingPlan) => {
+    if (!user) {
+      setError('Please sign in to subscribe');
+      return;
+    }
+
+    setSelectedPlan(plan);
     setIsLoading(true);
     setError(null);
+
     try {
       await onSubscribe(plan);
     } catch (err) {
       console.error('Subscription error:', err);
-      setError('Failed to process subscription. Please try again.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : 'Failed to process subscription. Please try again.'
+      );
+      setSelectedPlan(null);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Reset state when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setError(null);
+      setIsLoading(false);
+      setSelectedPlan(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -44,7 +66,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
       <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full p-6">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+          disabled={isLoading}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 disabled:opacity-50"
           aria-label="Close"
         >
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -105,14 +128,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               </ul>
               <button
                 onClick={() => handleSubscribe(plan)}
-                disabled={isLoading}
+                disabled={isLoading || !user}
                 className={`w-full py-2 px-4 rounded-lg ${
                   isDarkMode
                     ? 'bg-indigo-600 hover:bg-indigo-700'
                     : 'bg-indigo-500 hover:bg-indigo-600'
                 } text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2`}
               >
-                {isLoading ? (
+                {isLoading && selectedPlan?.id === plan.id ? (
                   <LoadingSpinner size="small" />
                 ) : (
                   `Choose ${plan.name}`
