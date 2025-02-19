@@ -57,7 +57,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold mb-2">Upgrade Your Spiritual Journey</h2>
           <p className={`${isDarkMode ? 'text-indigo-200' : 'text-gray-600'}`}>
-            You have {remainingReadings} free readings remaining.
             Unlock unlimited readings and premium features!
           </p>
           {error && (
