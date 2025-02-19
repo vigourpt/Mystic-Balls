@@ -20,6 +20,7 @@ import { Step } from './types';
 import ReadingOutput from './components/ReadingOutput';
 import FAQ from './components/FAQ';
 import { UserStatus } from './components/UserStatus/UserStatus';
+import { useUsageTracking } from './hooks/useUsageTracking';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -44,6 +45,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user, loading: authLoading } = useAuthState();
   const { signOut } = useAuth();
+  const { usage } = useUsageTracking(user?.id ?? null);  // Add usage tracking hook here
 
   const nextStep = () => {
     const currentIndex = ONBOARDING_STEPS.findIndex(step => step.id === currentStep?.id);
@@ -138,23 +140,30 @@ const App: React.FC = () => {
     checkProject();
   }, []);
 
-  const fetchProfiles = async () => {
-    try {
-      const { data, error } = await supabaseClient
-        .from('user_profiles')
-        .select('*');
-
-      if (error) {
-        setProfiles(null);
-      } else {
-        setProfiles(data);
-      }
-    } catch (err) {
-      setProfiles(null);
-    }
-  };
-
-  fetchProfiles();
+  useEffect(() => {
+    // Remove direct fetchProfiles call
+    useEffect(() => {
+      const fetchProfiles = async () => {
+        try {
+          const { data, error } = await supabaseClient
+            .from('user_profiles')
+            .select('*');
+    
+          if (error) {
+            setProfiles(null);
+          } else {
+            setProfiles(data);
+          }
+        } catch (err) {
+          setProfiles(null);
+        }
+      };
+    
+      fetchProfiles();
+    }, []);
+  }, []); // Run once on component mount
+  
+  // Remove the direct fetchProfiles() call
 
   if (authLoading) {
     return (
@@ -264,7 +273,7 @@ const App: React.FC = () => {
         isDarkMode={isDarkMode}
         user={user}
         onSubscribe={handleSubscribe}
-        remainingReadings={0}
+        remainingReadings={usage?.readingsRemaining ?? 0}
       />
 
       {currentStep && (

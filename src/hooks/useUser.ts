@@ -4,21 +4,28 @@ import { getUserProfile } from '../services/supabase';
 import type { UserProfile } from '../services/supabase';
 
 export const useUser = () => {
-  const { user: authUser } = useAuthState();
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const { user: authUser } = useAuthState();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (authUser?.id) {
-        const profile = await getUserProfile(authUser.id);
-        setUser(profile);
-      } else {
-        setUser(null);
+      setLoading(true);
+      try {
+        if (authUser?.id) {
+          const profile = await getUserProfile(authUser.id);
+          setUser(profile);
+        } else {
+          setUser(null);
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUserProfile();
   }, [authUser]);
 
-  return { user };
+  return { user, loading };
 };
