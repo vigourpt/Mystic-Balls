@@ -124,6 +124,7 @@ export const createUserProfile = async (userId: string, email: string, displayNa
     display_name: displayName || null,
     readings_count: 0,
     is_premium: false,
+    free_readings_remaining: 5,
     last_reading_date: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -187,9 +188,10 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
   }
 };
 
+// Fix the increment_reading_count RPC call
 export const incrementReadingCount = async (userId: string): Promise<void> => {
   const { error } = await supabase.rpc('increment_reading_count', {
-    p_id: userId
+    user_id: userId  // Changed from p_id to user_id to match the function parameter
   });
 
   if (error) {
@@ -198,32 +200,29 @@ export const incrementReadingCount = async (userId: string): Promise<void> => {
   }
 };
 
-export const updatePremiumStatus = async (userId: string, isPremium: boolean): Promise<void> => {
+// Fix the decrement free readings function
+export const decrementFreeReadings = async (userId: string): Promise<void> => {
+  // First get the current count
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('free_readings_remaining')
+    .eq('id', userId)
+    .single();
+
+  if (!profile || !profile.free_readings_remaining || profile.free_readings_remaining <= 0) {
+    throw new Error('No free readings remaining');
+  }
+
   const { error } = await supabase
     .from('user_profiles')
     .update({
-      is_premium: isPremium,
+      free_readings_remaining: profile.free_readings_remaining - 1,
       updated_at: new Date().toISOString()
     })
     .eq('id', userId);
 
   if (error) {
-    console.error('Error updating premium status:', error);
-    throw error;
-  }
-};
-
-export const setUserPremiumStatus = async (email: string): Promise<void> => {
-  const { error } = await supabase
-    .from('user_profiles')  // Make sure this matches your table name
-    .update({ 
-      is_premium: true,
-      updated_at: new Date().toISOString()
-    })
-    .eq('email', email);
-
-  if (error) {
-    console.error('Error setting premium status:', error);
+    console.error('Error decrementing free readings:', error);
     throw error;
   }
 };
