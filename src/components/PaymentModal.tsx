@@ -11,7 +11,6 @@ interface PaymentModalProps {
   onClose: () => void;
   user: User | null;
   remainingReadings: number;
-  onLoginRequired?: () => void;
   onSubscribe: (plan: PricingPlan) => Promise<void>;
 }
 
@@ -21,21 +20,21 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   onClose,
   user,
   remainingReadings,
-  onLoginRequired,
   onSubscribe
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubscribe = async (plan: PricingPlan) => {
-    setIsProcessing(true);
+    setIsLoading(true);
+    setError(null);
     try {
       await onSubscribe(plan);
-    } catch (error) {
-      console.error('Subscription error:', error);
+    } catch (err) {
+      console.error('Subscription error:', err);
+      setError('Failed to process subscription. Please try again.');
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 

@@ -42,9 +42,5 @@ export const useUsageTracking = (userId: string | null) => {
     fetchUsage();
   }, [userId]);
 
-  const { usage, error } = useUsageTracking(user?.id ?? null);
-  if (error) {
-    console.error('Usage tracking error:', error);
-  }
   return { usage, loading, error };
 };
