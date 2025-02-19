@@ -144,28 +144,47 @@ export const createUserProfile = async (userId: string, email: string, displayNa
 };
 
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
-  // First check if profile exists
-  const { data: existingProfile } = await supabase
-    .from('user_profiles')
-    .select()
-    .eq('id', userId)
-    .single();
+  try {
+    // First check if profile exists
+    const { data: existingProfile, error: fetchError } = await supabase
+      .from('user_profiles')
+      .select()
+      .eq('id', userId)
+      .single();
 
-  if (existingProfile) {
-    return existingProfile;
+    if (fetchError) {
+      console.error('Error fetching profile:', fetchError);
+    }
+
+    if (existingProfile) {
+      return existingProfile;
+    }
+
+    // If no profile exists, create one with retry logic
+    const { data: user } = await supabase.auth.getUser();
+    if (!user.user) return null;
+
+    try {
+      const newProfile = await createUserProfile(
+        userId,
+        user.user.email || '',
+        user.user.email?.split('@')[0]
+      );
+      return newProfile;
+    } catch (error) {
+      // If creation fails, try fetching one more time
+      const { data: retryProfile } = await supabase
+        .from('user_profiles')
+        .select()
+        .eq('id', userId)
+        .single();
+      
+      return retryProfile;
+    }
+  } catch (error) {
+    console.error('Error in getUserProfile:', error);
+    return null;
   }
-
-  // If no profile exists, create one
-  const { data: user } = await supabase.auth.getUser();
-  if (!user.user) return null;
-
-  const newProfile = await createUserProfile(
-    userId,
-    user.user.email || '',
-    user.user.email?.split('@')[0]
-  );
-
-  return newProfile;
 };
 
 export const incrementReadingCount = async (userId: string): Promise<void> => {
