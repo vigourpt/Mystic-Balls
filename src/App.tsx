@@ -9,7 +9,7 @@ import PaymentModal from './components/PaymentModal';
 import ReadingSelector from './components/ReadingSelector';
 import ReadingForm from './components/ReadingForm';
 import { PricingPlan, ReadingType } from './types';
-import { supabaseClient } from './lib/supabaseClient';
+import { checkProject } from './lib/supabaseClient';
 import { createClient } from '@supabase/supabase-js';
 import { UserProfile } from './services/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -135,24 +135,26 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        const { data, error } = await supabaseClient
-          .from('user_profiles')
-          .select('*');
-
-        if (error) {
-          setProfiles(null);
-        } else {
-          setProfiles(data);
-        }
-      } catch (err) {
-        setProfiles(null);
-      }
-    };
-
-    fetchProfiles();
+    checkProject();
   }, []);
+
+  const fetchProfiles = async () => {
+    try {
+      const { data, error } = await supabaseClient
+        .from('user_profiles')
+        .select('*');
+
+      if (error) {
+        setProfiles(null);
+      } else {
+        setProfiles(data);
+      }
+    } catch (err) {
+      setProfiles(null);
+    }
+  };
+
+  fetchProfiles();
 
   if (authLoading) {
     return (
