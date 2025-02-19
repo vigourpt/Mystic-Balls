@@ -146,7 +146,7 @@ const App: React.FC = () => {
         const { data, error } = await supabaseClient
           .from('user_profiles')
           .select('*');
-    
+  
         if (error) {
           setProfiles(null);
         } else {

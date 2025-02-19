@@ -26,22 +26,16 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleSubscribe = async (plan: PricingPlan) => {
-    if (!user) {
-      onLoginRequired?.();
-      return;
-    }
-
+    setIsProcessing(true);
     try {
-      setIsLoading(true);
-      setError(null);
       await onSubscribe(plan);
-    } catch (err) {
-      console.error('Error subscribing:', err);
-      setError(err instanceof Error ? err.message : 'Failed to subscribe');
+    } catch (error) {
+      console.error('Subscription error:', error);
     } finally {
-      setIsLoading(false);
+      setIsProcessing(false);
     }
   };
 
