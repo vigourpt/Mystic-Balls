@@ -243,11 +243,6 @@ const App: React.FC = () => {
               handleReadingTypeSelect={handleReadingTypeSelect}
               isDarkMode={isDarkMode}
             />
-            {profiles && (
-              <p className={`text-sm text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-700'} mt-2`}>
-                {profiles.length} user profiles loaded.
-              </p>
-            )}
           </div>
         )}
       </main>
