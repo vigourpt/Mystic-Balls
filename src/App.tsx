@@ -141,26 +141,23 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Remove direct fetchProfiles call
-    useEffect(() => {
-      const fetchProfiles = async () => {
-        try {
-          const { data, error } = await supabaseClient
-            .from('user_profiles')
-            .select('*');
+    const fetchProfiles = async () => {
+      try {
+        const { data, error } = await supabaseClient
+          .from('user_profiles')
+          .select('*');
     
-          if (error) {
-            setProfiles(null);
-          } else {
-            setProfiles(data);
-          }
-        } catch (err) {
+        if (error) {
           setProfiles(null);
+        } else {
+          setProfiles(data);
         }
-      };
-    
-      fetchProfiles();
-    }, []);
+      } catch (err) {
+        setProfiles(null);
+      }
+    };
+  
+    fetchProfiles();
   }, []); // Run once on component mount
   
   // Remove the direct fetchProfiles() call

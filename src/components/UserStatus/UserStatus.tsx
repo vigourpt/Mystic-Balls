@@ -4,9 +4,8 @@ import { useAuthState } from '../../hooks/useAuthState';
 
 export const UserStatus: React.FC = () => {
   const { user: authUser } = useAuthState();
-  const { user } = useUser();
-
-  if (!authUser || !user) return null;
+  const { user, loading } = useUser();
+  if (loading || !authUser || !user) return null;
 
   return (
     <div className="absolute top-4 right-4 text-right">
