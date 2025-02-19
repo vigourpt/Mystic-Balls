@@ -11,15 +11,16 @@ export interface Database {
     Tables: {
       user_profiles: {
         Row: {
-          id: string
-          email: string
-          display_name: string | null
-          readings_count: number
-          is_premium: boolean
-          last_reading_date: string | null
-          created_at: string
-          updated_at: string
-        }
+          id: string;
+          email: string;
+          display_name: string | null;
+          readings_count: number;
+          is_premium: boolean;
+          free_readings_remaining: number;
+          last_reading_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
         Insert: {
           id: string
           email: string
