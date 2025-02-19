@@ -45,7 +45,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { user, loading: authLoading } = useAuthState();
   const { signOut } = useAuth();
-  const { usage, loading: usageLoading } = useUsageTracking(user?.id ?? null);
+  useUsageTracking(user?.id ?? null);
 
   const handleReadingSubmit = async (formData: Record<string, string>) => {
     if (!user) {
@@ -72,10 +72,9 @@ const App: React.FC = () => {
       if (!response.ok) {
         if (response.status === 402) {
           setShowPaymentModal(true);
-        } else {
-          throw new Error('Failed to get reading');
+          return;
         }
-        return; // Add early return to prevent further processing
+        throw new Error('Failed to get reading');
       }
 
       const data = await response.json();
@@ -137,49 +136,7 @@ const App: React.FC = () => {
     }
   };
 
-  const handleReadingSubmit = async (formData: Record<string, string>) => {
-    if (!user) {
-      setShowLoginModal(true);
-      return;
-    }
-
-    setIsLoading(true);
-    setReadingOutput(null);
-
-    try {
-      const response = await fetch('/.netlify/functions/getReading', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
-        },
-        body: JSON.stringify({
-          readingType: selectedReadingType?.id,
-          userInput: formData,
-        }),
-      });
-
-      if (!response.ok) {
-        if (response.status === 402) {
-          setShowPaymentModal(true);
-        } else {
-          throw new Error('Failed to get reading');
-        }
-      }
-
-      const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
-      setReadingOutput(data.reading);
-    } catch (error) {
-      console.error('Error getting reading:', error);
-      setReadingOutput(error instanceof Error ? error.message : "There was an error getting your reading. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Remove this duplicate handleReadingSubmit function
   useEffect(() => {
     checkProject();
   }, []);
