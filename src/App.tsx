@@ -270,7 +270,6 @@ const App: React.FC = () => {
         isDarkMode={isDarkMode}
         user={user}
         onSubscribe={handleSubscribe}
-        remainingReadings={usage?.readingsRemaining ?? 0}
       />
 
       {currentStep && (

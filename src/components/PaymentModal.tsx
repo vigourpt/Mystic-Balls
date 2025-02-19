@@ -10,7 +10,6 @@ interface PaymentModalProps {
   isDarkMode: boolean;
   onClose: () => void;
   user: User | null;
-  remainingReadings: number;
   onSubscribe: (plan: PricingPlan) => Promise<void>;
 }
 
@@ -19,7 +18,6 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   isDarkMode,
   onClose,
   user,
-  remainingReadings,
   onSubscribe
 }) => {
   const [isLoading, setIsLoading] = useState(false);
