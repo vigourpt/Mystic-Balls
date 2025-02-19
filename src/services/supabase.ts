@@ -144,18 +144,28 @@ export const createUserProfile = async (userId: string, email: string, displayNa
 };
 
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
-  const { data, error } = await supabase
+  // First check if profile exists
+  const { data: existingProfile } = await supabase
     .from('user_profiles')
     .select()
     .eq('id', userId)
     .single();
 
-  if (error) {
-    console.error('Error getting user profile:', error);
-    return null;
+  if (existingProfile) {
+    return existingProfile;
   }
 
-  return data;
+  // If no profile exists, create one
+  const { data: user } = await supabase.auth.getUser();
+  if (!user.user) return null;
+
+  const newProfile = await createUserProfile(
+    userId,
+    user.user.email || '',
+    user.user.email?.split('@')[0]
+  );
+
+  return newProfile;
 };
 
 export const incrementReadingCount = async (userId: string): Promise<void> => {
