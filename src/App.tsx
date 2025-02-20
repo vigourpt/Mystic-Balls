@@ -20,6 +20,7 @@ import { Step } from './types';
 import ReadingOutput from './components/ReadingOutput';
 import FAQ from './components/FAQ';
 import { useUsageTracking } from './hooks/useUsageTracking';
+import { fireConfetti } from './utils/confetti';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -46,15 +47,15 @@ const App: React.FC = () => {
   const { signOut } = useAuth();
   useUsageTracking(user?.id ?? null);
 
-  const handleReadingSubmit = async (formData: Record<string, string>) => {
+  const handleReadingSubmit = async (formData: Record<string, string>): Promise<void> => {
     if (!user) {
       setShowLoginModal(true);
       return;
     }
-  
+
     setIsLoading(true);
     setReadingOutput(null);
-  
+
     try {
       const response = await fetch('/.netlify/functions/getReading', {
         method: 'POST',
@@ -67,7 +68,7 @@ const App: React.FC = () => {
           userInput: formData,
         }),
       });
-  
+
       if (!response.ok) {
         if (response.status === 402) {
           setShowPaymentModal(true);
@@ -75,17 +76,17 @@ const App: React.FC = () => {
         }
         throw new Error('Failed to get reading');
       }
-  
+
       const data = await response.json();
       if (data.error) {
         throw new Error(data.error);
       }
+      
       setReadingOutput(data.reading);
-  
-      // Decrement free readings count after successful reading
+      fireConfetti(); // Add confetti when reading is successful
+      
       if (!profiles?.[0]?.is_premium) {
         await decrementFreeReadings(user.id);
-        // Refresh profiles to update the UI
         const { data: updatedProfile } = await supabaseClient
           .from('user_profiles')
           .select('*')
@@ -139,6 +140,7 @@ const App: React.FC = () => {
       }
       
       if (result.url) {
+        fireConfetti(); // Add confetti before redirect
         window.location.href = result.url;
       } else {
         throw new Error('No checkout URL returned');
