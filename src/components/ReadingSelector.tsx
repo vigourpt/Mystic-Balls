@@ -16,42 +16,27 @@ const ReadingSelector: React.FC<Props> = ({ READING_TYPES, handleReadingTypeSele
         <span className="absolute -inset-2 bg-fuchsia-500/20 blur-md rounded-lg opacity-75 group-hover:opacity-100 transition-opacity"></span>
         <span className="relative glow-text text-center block">Discover Our Reading Types</span>
       </h2>
-      <div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {READING_TYPES.map((type) => {
-            const Icon = type.icon;
-            return (
-              <button
-                key={type.id}
-                onClick={() => handleReadingTypeSelect(type)}
-                className={`group relative p-6 rounded-xl text-left transition-all duration-300 transform hover:scale-105 ${
-                  isDarkMode
-                    ? 'bg-gradient-to-br from-indigo-800/50 to-purple-800/50 hover:from-indigo-700/50 hover:to-purple-700/50'
-                    : 'bg-gradient-to-br from-white to-indigo-50 hover:from-indigo-50 hover:to-white'
-              } backdrop-blur-sm shadow-xl`}
-              >
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <Icon
-                    size={48}
-                    className={`${
-                      isDarkMode ? 'text-indigo-300' : 'text-indigo-600'
-                    } transition-transform group-hover:scale-110`}
-                  />
-                  <h3 className={`text-xl font-semibold ${
-                    isDarkMode ? 'text-white' : 'text-gray-800'
-                  }`}>
-                    {type.name}
-                  </h3>
-                  <p className={`text-sm ${
-                    isDarkMode ? 'text-indigo-200' : 'text-gray-600'
-                  }`}>
-                    {type.description}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {READING_TYPES.map((type) => {
+          const Icon = type.icon;
+          return (
+            <button
+              key={type.id}
+              onClick={() => handleReadingTypeSelect(type)}
+              className={`p-8 rounded-xl relative overflow-hidden reading-card ${
+                isDarkMode ? 'bg-indigo-900/30' : 'bg-white/80'
+              } backdrop-blur-sm hover:scale-105 transition-all duration-300 flex flex-col items-center text-center`}
+            >
+              <Icon className={`w-12 h-12 mb-4 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-600'}`} />
+              <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                {type.title}
+              </h3>
+              <p className={`text-sm ${isDarkMode ? 'text-indigo-200' : 'text-indigo-600'}`}>
+                {type.description}
+              </p>
+            </button>
+          );
+        })}
       </div>
     </section>
   );
