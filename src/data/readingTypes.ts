@@ -1,7 +1,6 @@
 import { 
   BookOpen,
   Calculator,
-  Clock,
   Dice5,
   Hash,
   Layout,
@@ -12,26 +11,12 @@ import {
   Zap
 } from 'lucide-react';
 import { ReadingType } from '../types';
-import { GiReincarnation } from 'react-icons/gi';
-// Remove unused Clock import
-import { 
-  BookOpen,
-  Calculator,
-  Clock,
-  Dice5,
-  Hash,
-  Layout,
-  Moon,
-  Sparkles,
-  Star,
-  Sun,
-  Zap
-} from 'lucide-react';
+import { GiSpirals } from 'react-icons/gi';  // Change to a different icon that exists
 
 export const READING_TYPES: ReadingType[] = [
   {
     id: 'tarot',
-    name: 'Tarot Reading',
+    title: 'Tarot Reading',  // Change 'name' to 'title'
     description: 'Discover insights through the ancient wisdom of tarot cards',
     icon: Layout,
     fields: [
@@ -284,10 +269,10 @@ export const READING_TYPES: ReadingType[] = [
     id: 'pastlife',
     title: 'Past Life Reading',
     description: "Let's imagine your past life! Share your experiences and we'll explore the echoes of your previous incarnations.",
-    icon: GiReincarnation,
-    inputs: [
+    icon: GiSpirals,  // Use the new icon
+    fields: [  // Change 'inputs' to 'fields' to match interface
       {
-        id: 'name',
+        name: 'name',  // Change 'id' to 'name' to match other reading types
         label: 'Your Name',
         type: 'text',
         placeholder: 'Enter your name',

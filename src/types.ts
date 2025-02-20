@@ -4,10 +4,10 @@ export type ReadingTypeId = 'tarot' | 'numerology' | 'astrology' | 'oracle' | 'r
 
 export interface ReadingType {
   id: string;
-  title: string;  // Add this
+  title: string;
   description: string;
-  icon: IconType;  // Make sure this exists
-  inputs: ReadingInput[];
+  icon: IconType;
+  fields: ReadingInput[];  // Change 'inputs' to 'fields' to match the data structure
 }
 
 export interface ReadingField {
