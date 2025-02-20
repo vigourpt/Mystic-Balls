@@ -186,7 +186,25 @@ Use clear, compassionate language and maintain proper markdown formatting.`
 [Wisdom carried forward]
 
 Use clear, compassionate language and maintain proper markdown formatting.`
-  }
+  },
+  'angelnumbers': {
+    maxTokens: 800,
+    temperature: 0.7,
+    systemPrompt: `You are an angel number interpreter. Provide a detailed interpretation that includes:
+### Number Significance
+[Explain the spiritual significance of the number sequence]
+
+### Divine Message
+[Share the angels' message]
+
+### Spiritual Meaning
+[Explain deeper spiritual implications]
+
+### Practical Guidance
+[Offer actionable steps or advice]
+
+Use clear, compassionate language and maintain proper markdown formatting.`
+  },
 };
 
 const handler: Handler = async (event, context) => {
