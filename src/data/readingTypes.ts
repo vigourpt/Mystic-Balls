@@ -269,34 +269,38 @@ export const READING_TYPES: ReadingType[] = [
     id: 'pastlife',
     title: 'Past Life Reading',
     description: "Let's imagine your past life! Share your experiences and we'll explore the echoes of your previous incarnations.",
-    icon: GiSpellBook,  // Use GiSpellBook instead of GiSpiral
+    icon: GiSpellBook,
     fields: [
       {
         name: 'name',
-        label: 'Your Name',
         type: 'text',
-        placeholder: 'Enter your name',
+        label: 'Your Name',
+        displayName: 'Your Name',
+        placeholder: 'Enter your full name...',
         required: true
       },
       {
-        name: 'recurringExperiences',  // Change id to name
-        label: 'Recurring Dreams or Unexplained Feelings',
+        name: 'recurringExperiences',
         type: 'textarea',
-        placeholder: 'Do you ever have the same dream or memory over and over, or feel something strongly but don\'t know why? (Example: Like dreaming about a place you\'ve never been, or suddenly feeling happy/sad for no reason?)',
+        label: 'Recurring Dreams or Experiences',
+        displayName: 'Tell us about your recurring dreams or experiences',
+        placeholder: 'Share any recurring dreams, déjà vu moments, or unexplained memories that feel significant to you...',
         required: true
       },
       {
-        id: 'fearsAndAttractions',
-        label: 'Unexplained Fears or Attractions',
+        name: 'fearsAndAttractions',
         type: 'textarea',
-        placeholder: 'Are you scared of something—like water, heights, or the dark—even though nothing bad ever happened to you? Or do you love something a ton, like a place or hobby, and you\'re not sure why? (Example: Maybe you\'re obsessed with dinosaurs or feel weirdly at home in the ocean!)',
+        label: 'Unexplained Fears and Attractions',
+        displayName: 'What are your unexplained fears or strong attractions?',
+        placeholder: 'Describe any intense fears or attractions that have no clear origin in your current life (e.g., fear of water, fascination with a particular culture or time period)...',
         required: true
       },
       {
-        id: 'naturalTalents',
-        label: 'Natural Talents or Abilities',
+        name: 'naturalTalents',
         type: 'textarea',
-        placeholder: 'Is there something you\'re really good at—like drawing, singing, or helping people—that feels easy or natural, like you\'ve always known how?',
+        label: 'Natural Abilities',
+        displayName: 'What skills or abilities come naturally to you?',
+        placeholder: 'Describe any skills, talents, or knowledge that you picked up unusually quickly or seem to have known instinctively...',
         required: true
       }
     ]
