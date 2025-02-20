@@ -473,7 +473,6 @@ const handler: Handler = async (event, context) => {
           .from('user_profiles')
           .update({
             readings_count: currentReadingsCount + 1,
-            free_readings_remaining: freeReadingsRemaining - 1,
             last_reading_date: new Date().toISOString()
           })
           .eq('id', user.id);

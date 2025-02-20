@@ -86,10 +86,9 @@ const App: React.FC = () => {
       fireConfetti();
       
       if (!profiles?.[0]?.is_premium) {
-        await decrementFreeReadings(user.id);
-        // Fetch the updated profile immediately after decrementing
+        // Fetch the updated profile immediately
         const { data: updatedProfile, error } = await supabaseClient
-          .from('user_profiles')  // Change back to user_profiles
+          .from('user_profiles')
           .select('*')
           .eq('id', user.id)
           .single();
