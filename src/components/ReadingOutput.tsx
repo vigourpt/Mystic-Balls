@@ -31,6 +31,19 @@ const ReadingOutput: React.FC<Props> = ({ readingType, isDarkMode, reading, isLo
 
   if (!reading) return null;
 
+  const formatReadingType = (type: string): string => {
+    const specialCases: Record<string, string> = {
+      'angelnumbers': 'Angel Numbers',
+      'iching': 'I-Ching',
+      'magic8ball': 'Magic 8 Ball',
+      'pastlife': 'Past Life'
+    };
+
+    return specialCases[type] || type.split(/(?=[A-Z])/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className={`mt-8 p-6 rounded-xl relative overflow-hidden reading-output ${
       isDarkMode
@@ -53,7 +66,7 @@ const ReadingOutput: React.FC<Props> = ({ readingType, isDarkMode, reading, isLo
             <span className="absolute -inset-2 bg-fuchsia-500/20 blur-xl rounded-lg opacity-75 group-hover:opacity-100 transition-opacity"></span>
             <span className="absolute -inset-2 bg-fuchsia-500/20 blur-lg rounded-lg opacity-75 group-hover:opacity-100 transition-opacity"></span>
             <span className="absolute -inset-2 bg-fuchsia-500/20 blur-md rounded-lg opacity-75 group-hover:opacity-100 transition-opacity"></span>
-            <span className="relative glow-text">Your {readingType.id === 'iching' ? 'I-Ching' : readingType.id.charAt(0).toUpperCase() + readingType.id.slice(1)} Reading</span>
+            <span className="relative glow-text">Your {formatReadingType(readingType.id)} Reading</span>
           </h2>
         </div>
         
