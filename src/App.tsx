@@ -250,6 +250,13 @@ const App: React.FC = () => {
                   reading={readingOutput}
                   isLoading={isLoading}
                 />
+                <button
+                  onClick={() => setSelectedReadingType(null)}
+                  className="mt-8 flex items-center gap-2 px-4 py-2 text-white bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg transition-colors mx-auto"
+                >
+                  <span>←</span>
+                  Back to Reading Types
+                </button>
               </div>
             )}
           </div>
