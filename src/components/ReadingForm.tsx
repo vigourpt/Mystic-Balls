@@ -41,7 +41,7 @@ export const ReadingForm = ({ readingType, onSubmit, isDarkMode = true }: Props)
         <span className="absolute -inset-2 bg-fuchsia-500/20 blur-xl rounded-lg opacity-75 group-hover:opacity-100 transition-opacity"></span>
         <span className="absolute -inset-2 bg-fuchsia-500/20 blur-lg rounded-lg opacity-75 group-hover:opacity-100 transition-opacity"></span>
         <span className="absolute -inset-2 bg-fuchsia-500/20 blur-md rounded-lg opacity-75 group-hover:opacity-100 transition-opacity"></span>
-        <span className="relative glow-text">{readingType.name}</span>
+        <span className="relative glow-text">{readingType.title}</span>
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         {readingType.fields?.map((field) => (
@@ -73,7 +73,7 @@ export const ReadingForm = ({ readingType, onSubmit, isDarkMode = true }: Props)
                 className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 ${baseInputClasses}`}
               >
                 <option value="">Select an option</option>
-                {field.options?.map(option => (
+                {field.options?.map((option: string) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>

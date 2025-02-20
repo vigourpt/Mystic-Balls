@@ -11,12 +11,12 @@ import {
   Zap
 } from 'lucide-react';
 import { ReadingType } from '../types';
-import { GiSpirals } from 'react-icons/gi';  // Change to a different icon that exists
+import { GiSpellBook } from 'react-icons/gi';  // Change to GiSpellBook which exists
 
 export const READING_TYPES: ReadingType[] = [
   {
     id: 'tarot',
-    title: 'Tarot Reading',  // Change 'name' to 'title'
+    title: 'Tarot Reading',  // Change name to title
     description: 'Discover insights through the ancient wisdom of tarot cards',
     icon: Layout,
     fields: [
@@ -46,7 +46,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'numerology',
-    name: 'Numerology Reading',
+    title: 'Numerology Reading',  // Change name to title
     description: 'Unlock the meaning behind your personal numbers',
     icon: Calculator,
     fields: [
@@ -69,7 +69,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'astrology',
-    name: 'Astrology Reading',
+    title: 'Astrology Reading',  // Change name to title
     description: 'Explore your celestial connections and cosmic path',
     icon: Star,
     fields: [
@@ -100,7 +100,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'oracle',
-    name: 'Oracle Card Reading',
+    title: 'Oracle Card Reading',  // Change name to title
     description: 'Receive guidance through mystical oracle messages',
     icon: Sparkles,
     fields: [
@@ -130,7 +130,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'runes',
-    name: 'Rune Reading',
+    title: 'Rune Reading',  // Changed from name to title
     description: 'Ancient Norse wisdom for modern guidance',
     icon: Dice5,
     fields: [
@@ -159,7 +159,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'iching',
-    name: 'I Ching Reading',
+    title: 'I Ching Reading',  // Changed from name to title
     description: 'Connect with ancient Chinese divination wisdom',
     icon: BookOpen,
     fields: [
@@ -175,7 +175,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'angelnumbers',
-    name: 'Angel Numbers',
+    title: 'Angel Numbers',  // Changed from name to title
     description: 'Decode divine messages in recurring numbers',
     icon: Hash,
     fields: [
@@ -199,7 +199,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'horoscope',
-    name: 'Daily Horoscope',
+    title: 'Daily Horoscope',  // Changed from name to title
     description: 'Your personalized daily celestial guidance',
     icon: Sun,
     fields: [
@@ -219,7 +219,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'dreamanalysis',
-    name: 'Dream Analysis',
+    title: 'Dream Analysis',  // Changed from name to title
     description: 'Uncover the hidden meanings in your dreams',
     icon: Moon,
     fields: [
@@ -235,7 +235,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'magic8ball',
-    name: 'Magic 8 Ball',
+    title: 'Magic 8 Ball',  // Changed from name to title
     description: 'Quick answers to yes/no questions',
     icon: Dice5,
     fields: [
@@ -251,7 +251,7 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'aura',
-    name: 'Aura Reading',
+    title: 'Aura Reading',  // Changed from name to title
     description: 'Discover your energy field\'s colors and meanings',
     icon: Zap,
     fields: [
@@ -269,17 +269,17 @@ export const READING_TYPES: ReadingType[] = [
     id: 'pastlife',
     title: 'Past Life Reading',
     description: "Let's imagine your past life! Share your experiences and we'll explore the echoes of your previous incarnations.",
-    icon: GiSpirals,  // Use the new icon
-    fields: [  // Change 'inputs' to 'fields' to match interface
+    icon: GiSpellBook,  // Use GiSpellBook instead of GiSpiral
+    fields: [
       {
-        name: 'name',  // Change 'id' to 'name' to match other reading types
+        name: 'name',
         label: 'Your Name',
         type: 'text',
         placeholder: 'Enter your name',
         required: true
       },
       {
-        id: 'recurringExperiences',
+        name: 'recurringExperiences',  // Change id to name
         label: 'Recurring Dreams or Unexplained Feelings',
         type: 'textarea',
         placeholder: 'Do you ever have the same dream or memory over and over, or feel something strongly but don\'t know why? (Example: Like dreaming about a place you\'ve never been, or suddenly feeling happy/sad for no reason?)',
