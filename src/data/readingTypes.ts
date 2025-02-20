@@ -267,25 +267,37 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'pastlife',
-    name: 'Past Life Reading',
-    description: 'Explore your soul\'s previous incarnations',
-    icon: Clock,
-    fields: [
+    title: 'Past Life Reading',
+    description: "Let's imagine your past life! Share your experiences and we'll explore the echoes of your previous incarnations.",
+    icon: GiReincarnation,
+    inputs: [
       {
-        name: 'concerns',
-        type: 'textarea',
-        label: 'Current Life Concerns',
-        displayName: 'What aspects of your current life would you like to explore?',
-        placeholder: 'Describe your current situations or patterns you want to understand...',
+        id: 'name',
+        label: 'Your Name',
+        type: 'text',
+        placeholder: 'Enter your name',
         required: true
       },
       {
-        name: 'feelings',
+        id: 'recurringExperiences',
+        label: 'Recurring Dreams or Unexplained Feelings',
         type: 'textarea',
-        label: 'Unexplained Feelings',
-        displayName: 'Any unexplained feelings or attractions?',
-        placeholder: 'Describe any strong unexplained feelings, fears, or attractions...',
-        required: false
+        placeholder: 'Do you ever have the same dream or memory over and over, or feel something strongly but don\'t know why? (Example: Like dreaming about a place you\'ve never been, or suddenly feeling happy/sad for no reason?)',
+        required: true
+      },
+      {
+        id: 'fearsAndAttractions',
+        label: 'Unexplained Fears or Attractions',
+        type: 'textarea',
+        placeholder: 'Are you scared of something—like water, heights, or the dark—even though nothing bad ever happened to you? Or do you love something a ton, like a place or hobby, and you\'re not sure why? (Example: Maybe you\'re obsessed with dinosaurs or feel weirdly at home in the ocean!)',
+        required: true
+      },
+      {
+        id: 'naturalTalents',
+        label: 'Natural Talents or Abilities',
+        type: 'textarea',
+        placeholder: 'Is there something you\'re really good at—like drawing, singing, or helping people—that feels easy or natural, like you\'ve always known how?',
+        required: true
       }
     ]
   }

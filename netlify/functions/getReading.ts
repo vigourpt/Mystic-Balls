@@ -432,7 +432,13 @@ const handler: Handler = async (event, context) => {
       const prompts: Record<string, string> = {
         'tarot': `Provide a tarot reading for this question: ${userInput.question}`,
         'numerology': `Analyze the numerological significance of ${userInput.fullname}, born on ${userInput.birthdate}`,
-        'pastlife': `Explore past life connections based on current concerns: ${userInput.concerns}${userInput.feelings ? ` and unexplained feelings: ${userInput.feelings}` : ''}`,
+        'pastlife': `Explore past life connections for ${userInput.name}.
+
+Recurring Experiences: ${userInput.recurringExperiences}
+
+Fears and Attractions: ${userInput.fearsAndAttractions}
+
+Natural Talents: ${userInput.naturalTalents}`,
         'magic8ball': `Respond to this question: ${userInput.question}`,
         'astrology': `Analyze the celestial influences for someone born on ${userInput.birthdate}${userInput.birthtime ? ` at ${userInput.birthtime}` : ''} in ${userInput.birthplace}`,
         'oracle': `Interpret the oracle cards for: ${userInput.question}`,
