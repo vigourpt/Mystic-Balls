@@ -313,9 +313,9 @@ const handler: Handler = async (event, context) => {
         throw new Error('Failed to get user profile');
       }
 
-      // Fix the free readings check
+      // Fix the free readings check - ensure we start with correct initial values
       const currentReadingsCount = profile.readings_count || 0;
-      const freeReadingsRemaining = MAX_FREE_READINGS - currentReadingsCount;
+      const freeReadingsRemaining = profile.free_readings_remaining ?? MAX_FREE_READINGS;
 
       if (!profile.is_premium && freeReadingsRemaining <= 0) {
         console.log('Free trial ended for user:', user.id);
@@ -441,6 +441,7 @@ const handler: Handler = async (event, context) => {
           .from('user_profiles')
           .update({
             readings_count: currentReadingsCount + 1,
+            free_readings_remaining: freeReadingsRemaining - 1,
             last_reading_date: new Date().toISOString()
           })
           .eq('id', user.id);
@@ -460,7 +461,7 @@ const handler: Handler = async (event, context) => {
       }
 
       if (!profile.is_premium) {
-          responseBody.readingsRemaining = MAX_FREE_READINGS - (profile.readings_count + 1);
+          responseBody.readingsRemaining = freeReadingsRemaining - 1;
       } else {
           responseBody.readingsRemaining = null;
       }
