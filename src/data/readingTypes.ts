@@ -11,7 +11,22 @@ import {
   Sun,
   Zap
 } from 'lucide-react';
-import type { ReadingType } from '../types';
+import { ReadingType } from '../types';
+import { GiReincarnation } from 'react-icons/gi';
+// Remove unused Clock import
+import { 
+  BookOpen,
+  Calculator,
+  Clock,
+  Dice5,
+  Hash,
+  Layout,
+  Moon,
+  Sparkles,
+  Star,
+  Sun,
+  Zap
+} from 'lucide-react';
 
 export const READING_TYPES: ReadingType[] = [
   {

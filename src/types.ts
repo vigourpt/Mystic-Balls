@@ -3,11 +3,11 @@ import type { LucideIcon } from 'lucide-react';
 export type ReadingTypeId = 'tarot' | 'numerology' | 'astrology' | 'oracle' | 'runes' | 'iching' | 'angelnumbers' | 'horoscope' | 'dreamanalysis' | 'magic8ball' | 'aura' | 'pastlife';
 
 export interface ReadingType {
-  id: ReadingTypeId;
-  name: string;
+  id: string;
+  title: string;  // Add this
   description: string;
-  icon: LucideIcon;
-  fields?: ReadingField[];
+  icon: IconType;  // Make sure this exists
+  inputs: ReadingInput[];
 }
 
 export interface ReadingField {
