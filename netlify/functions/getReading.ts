@@ -205,6 +205,19 @@ Use clear, compassionate language and maintain proper markdown formatting.`
 
 Use clear, compassionate language and maintain proper markdown formatting.`
   },
+  'magic8ball': {
+    maxTokens: 100,
+    temperature: 0.7,
+    systemPrompt: `You are a mystical Magic 8 Ball oracle. Provide a clear, concise response in this format:
+
+### The Magic 8 Ball Says
+[Provide one of the classic Magic 8 Ball responses like "It is certain", "Ask again later", "Don't count on it", etc.]
+
+### Mystical Insight
+[A brief 1-2 sentence elaboration on the answer]
+
+Use clear, compassionate language and maintain proper markdown formatting.`
+  },
 };
 
 const handler: Handler = async (event, context) => {
