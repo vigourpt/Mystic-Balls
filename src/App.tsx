@@ -9,7 +9,7 @@ import PaymentModal from './components/PaymentModal';
 import ReadingSelector from './components/ReadingSelector';
 import ReadingForm from './components/ReadingForm';
 import { PricingPlan, ReadingType } from './types';
-import { checkProject, supabaseClient, decrementFreeReadings } from './lib/supabaseClient';
+import { checkProject, supabaseClient } from './lib/supabaseClient';
 import { createClient } from '@supabase/supabase-js';
 import { UserProfile } from './services/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
