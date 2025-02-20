@@ -313,8 +313,11 @@ const handler: Handler = async (event, context) => {
         throw new Error('Failed to get user profile');
       }
 
-      // Check if user is premium or has free readings left
-      if (!profile.is_premium && profile.readings_count >= MAX_FREE_READINGS) {
+      // Fix the free readings check
+      const currentReadingsCount = profile.readings_count || 0;
+      const freeReadingsRemaining = MAX_FREE_READINGS - currentReadingsCount;
+
+      if (!profile.is_premium && freeReadingsRemaining <= 0) {
         console.log('Free trial ended for user:', user.id);
         return {
           statusCode: 402,
@@ -437,7 +440,7 @@ const handler: Handler = async (event, context) => {
         const { error: updateError } = await supabase
           .from('user_profiles')
           .update({
-            readings_count: profile.readings_count + 1,
+            readings_count: currentReadingsCount + 1,
             last_reading_date: new Date().toISOString()
           })
           .eq('id', user.id);
