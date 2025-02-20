@@ -83,16 +83,20 @@ const App: React.FC = () => {
       }
       
       setReadingOutput(data.reading);
-      fireConfetti(); // Add confetti when reading is successful
+      fireConfetti();
       
       if (!profiles?.[0]?.is_premium) {
         await decrementFreeReadings(user.id);
-        const { data: updatedProfile } = await supabaseClient
-          .from('user_profiles')
+        // Fetch the updated profile immediately after decrementing
+        const { data: updatedProfile, error } = await supabaseClient
+          .from('user_profiles')  // Change back to user_profiles
           .select('*')
           .eq('id', user.id)
           .single();
-        if (updatedProfile) {
+          
+        if (error) {
+          console.error('Error fetching updated profile:', error);
+        } else if (updatedProfile) {
           setProfiles([updatedProfile]);
         }
       }
@@ -160,9 +164,9 @@ const App: React.FC = () => {
     const fetchProfiles = async () => {
       try {
         const { data, error } = await supabaseClient
-          .from('user_profiles')
+          .from('user_profiles')  // Change back to user_profiles
           .select('*');
-  
+
         if (error) {
           setProfiles(null);
         } else {

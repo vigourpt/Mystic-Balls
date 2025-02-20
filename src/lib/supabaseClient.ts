@@ -31,7 +31,7 @@ export const checkProject = async () => {
 export const decrementFreeReadings = async (userId: string): Promise<void> => {
   // First get the current count
   const { data: profile } = await supabaseClient
-    .from('user_profiles')
+    .from('user_profiles')  // Change back to user_profiles
     .select('free_readings_remaining')
     .eq('id', userId)
     .single();
@@ -41,7 +41,7 @@ export const decrementFreeReadings = async (userId: string): Promise<void> => {
   }
 
   const { error } = await supabaseClient
-    .from('user_profiles')
+    .from('user_profiles')  // Change back to user_profiles
     .update({
       free_readings_remaining: profile.free_readings_remaining - 1,
       updated_at: new Date().toISOString()
