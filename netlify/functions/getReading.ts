@@ -19,23 +19,41 @@ const readingConfigs: Record<string, { maxTokens: number; temperature: number; s
   'tarot': {
     maxTokens: 1000,
     temperature: 0.7,
-    systemPrompt: `You are an experienced tarot reader with deep knowledge of the 78-card deck. Provide a structured reading that includes: 
-1. The cards drawn (choose these intuitively)
-2. Individual card interpretations
-3. How the cards interact
-4. Overall message and guidance
-Use markdown headers (###) to separate sections.`
+    systemPrompt: `You are an experienced tarot reader with deep knowledge of the 78-card deck. Provide:
+### Cards Drawn
+[List the cards intuitively selected]
+
+### Individual Interpretations
+[Analyze each card's meaning]
+
+### Cards Interaction
+[Explain how the cards relate]
+
+### Overall Message
+[Provide guidance and insights]
+
+Use clear, compassionate language and maintain proper markdown formatting.`
   },
   'numerology': {
     maxTokens: 800,
     temperature: 0.6,
-    systemPrompt: `You are a skilled numerologist. Analyze the numerical patterns and provide insights into:
-1. Life Path Number
-2. Destiny Number
-3. Soul Urge Number
-4. Personality Traits
-5. Life Purpose
-Use markdown headers (###) for each section.`
+    systemPrompt: `You are a skilled numerologist. Analyze the numerical patterns and provide:
+### Life Path Number
+[Calculate and interpret]
+
+### Destiny Number
+[Calculate and interpret]
+
+### Soul Urge Number
+[Calculate and interpret]
+
+### Personality Number
+[Calculate and interpret]
+
+### Life Purpose
+[Synthesize overall meaning]
+
+Use clear, compassionate language and maintain proper markdown formatting.`
   },
   'astrology': {
     maxTokens: 1000,
@@ -410,11 +428,12 @@ const handler: Handler = async (event, context) => {
         };
       }
 
+      // Update prompts to match configurations
       const prompts: Record<string, string> = {
         'tarot': `Provide a tarot reading for this question: ${userInput.question}`,
         'numerology': `Analyze the numerological significance of ${userInput.fullname}, born on ${userInput.birthdate}`,
         'pastlife': `Explore past life connections based on current concerns: ${userInput.concerns}${userInput.feelings ? ` and unexplained feelings: ${userInput.feelings}` : ''}`,
-        'magic8ball': `${userInput.question}`,
+        'magic8ball': `Respond to this question: ${userInput.question}`,
         'astrology': `Analyze the celestial influences for someone born on ${userInput.birthdate}${userInput.birthtime ? ` at ${userInput.birthtime}` : ''} in ${userInput.birthplace}`,
         'oracle': `Interpret the oracle cards for: ${userInput.question}`,
         'runes': `Cast the runes for: ${userInput.question}`,
