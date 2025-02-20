@@ -61,14 +61,17 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 ${isDarkMode ? 'dark' : ''}`}>
-      <div className="fixed inset-0 bg-black bg-opacity-50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 bg-black bg-opacity-75" onClick={onClose} />
+      <div className={`relative rounded-lg shadow-xl max-w-4xl w-full p-6 ${
+        isDarkMode 
+          ? 'bg-gradient-to-br from-indigo-950 via-purple-900 to-blue-950 text-white' 
+          : 'bg-white text-gray-900'
+      }`}>
         <button
           onClick={onClose}
           disabled={isLoading}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 disabled:opacity-50"
-          aria-label="Close"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-300 disabled:opacity-50"
         >
           <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -76,8 +79,8 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </button>
 
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold mb-2">Upgrade Your Spiritual Journey</h2>
-          <p className={`${isDarkMode ? 'text-indigo-200' : 'text-gray-600'}`}>
+          <h2 className="text-3xl font-bold mb-2">Upgrade Your Spiritual Journey</h2>
+          <p className={`text-lg ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Unlock unlimited readings and premium features!
           </p>
           {error && (
@@ -85,43 +88,28 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               {error}
             </div>
           )}
-          {!user && (
-            <div className="mb-6 p-4 bg-indigo-100 dark:bg-indigo-900 rounded-lg">
-              <p className="text-indigo-700 dark:text-indigo-200">
-                Please sign in to subscribe
-              </p>
-            </div>
-          )}
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {PAYMENT_PLANS.map((plan: PricingPlan) => (
+          {PAYMENT_PLANS.map((plan) => (
             <div
               key={plan.id}
-              className={`${
+              className={`rounded-lg p-6 transition-colors ${
                 isDarkMode
-                  ? 'bg-indigo-800/50 hover:bg-indigo-700/50'
-                  : 'bg-white hover:bg-indigo-50'
-              } rounded-xl p-6 shadow-lg transition-all duration-300 transform hover:scale-105`}
+                  ? 'bg-indigo-900/40 hover:bg-indigo-900/60'
+                  : 'bg-indigo-50 hover:bg-indigo-100'
+              }`}
             >
               <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
               <div className="text-3xl font-bold mb-4">
                 ${plan.price}
-                <span className={`text-sm ${
-                  isDarkMode ? 'text-indigo-200' : 'text-gray-600'
-                }`}>/month</span>
+                <span className="text-base font-normal">/month</span>
               </div>
-              <p className={`mb-4 ${
-                isDarkMode ? 'text-indigo-200' : 'text-gray-600'
-              }`}>
-                {plan.description}
-              </p>
+              <p className="mb-4 text-sm">{plan.description}</p>
               <ul className="space-y-2 mb-6">
                 {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-center">
-                    <Check className={`w-5 h-5 mr-2 ${
-                      isDarkMode ? 'text-indigo-300' : 'text-indigo-600'
-                    }`} />
+                    <Check className="h-5 w-5 mr-2 text-green-500" />
                     <span>{feature}</span>
                   </li>
                 ))}
@@ -129,14 +117,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
               <button
                 onClick={() => handleSubscribe(plan)}
                 disabled={isLoading || !user}
-                className={`w-full py-2 px-4 rounded-lg ${
+                className={`w-full py-2 px-4 rounded-lg transition-colors ${
                   isDarkMode
-                    ? 'bg-indigo-600 hover:bg-indigo-700'
-                    : 'bg-indigo-500 hover:bg-indigo-600'
-                } text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2`}
+                    ? 'bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800'
+                    : 'bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-300'
+                } text-white font-medium disabled:cursor-not-allowed`}
               >
                 {isLoading && selectedPlan?.id === plan.id ? (
-                  <LoadingSpinner size="small" />
+                  <LoadingSpinner />
                 ) : (
                   `Choose ${plan.name}`
                 )}
@@ -148,11 +136,11 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         <button
           onClick={onClose}
           disabled={isLoading}
-          className={`mt-6 py-2 px-4 rounded-lg ${
+          className={`mt-6 py-2 px-4 rounded-lg w-full transition-colors ${
             isDarkMode
-              ? 'bg-gray-800 hover:bg-gray-700'
-              : 'bg-gray-200 hover:bg-gray-300'
-          } transition-colors w-full disabled:opacity-50`}
+              ? 'bg-gray-800 hover:bg-gray-700 text-gray-300'
+              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+          } disabled:opacity-50`}
         >
           Maybe Later
         </button>
