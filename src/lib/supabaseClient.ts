@@ -41,7 +41,6 @@ export const decrementFreeReadings = async (userId: string): Promise<void> => {
   }
 
   const freeReadingsRemaining = profile.free_readings_remaining ?? 5;
-  const readingsCount = profile.readings_count ?? 0;
 
   if (freeReadingsRemaining <= 0) {
     throw new Error('No free readings remaining');
@@ -51,7 +50,6 @@ export const decrementFreeReadings = async (userId: string): Promise<void> => {
     .from('user_profiles')
     .update({
       free_readings_remaining: freeReadingsRemaining - 1,
-      readings_count: readingsCount + 1,
       updated_at: new Date().toISOString()
     })
     .eq('id', userId);
