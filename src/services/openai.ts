@@ -9,12 +9,12 @@ const validateRequiredFields = (readingType: ReadingTypeId, userInput: Record<st
     'oracle': ['question', 'deck'],
     'runes': ['question', 'spread'],
     'iching': ['question'],
-    'angelnumbers': ['numbers'],
+    'angelnumbers': ['name', 'number'],  // Fixed field names
     'horoscope': ['zodiac'],
-    'dreamanalysis': ['dreamDescription'],  // Update to match the new field name
+    'dreamanalysis': ['dream'],  // Changed to match the field name in readingTypes.ts
     'magic8ball': ['question'],
     'aura': ['feelings'],
-    'pastlife': ['concerns']
+    'pastlife': ['name', 'recurringExperiences', 'fearsAndAttractions', 'naturalTalents']  // Fixed field names
   };
 
   const missing = requiredFields[readingType]?.filter(field => !userInput[field]);
@@ -32,7 +32,7 @@ export const getReading = async (
     if (!readingType || typeof readingType !== 'object' || !readingType.id) {
       throw new Error(`Invalid reading type: ${JSON.stringify(readingType)}`);
     }
-    validateRequiredFields(readingType.id, userInput);
+    validateRequiredFields(readingType.id as ReadingTypeId, userInput);
 
     console.log('Processing reading type:', readingType, 'with input:', userInput);
     

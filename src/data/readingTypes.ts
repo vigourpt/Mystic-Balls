@@ -224,7 +224,7 @@ export const READING_TYPES: ReadingType[] = [
     icon: Moon,
     fields: [
       {
-        name: 'dreamDescription',  // Changed from 'dream' to match backend expectations
+        name: 'dream',  // Changed from 'dreamDescription' to match validation
         type: 'textarea',
         label: 'Dream Description',
         displayName: 'Tell us about your dream',
