@@ -446,7 +446,8 @@ Natural Talents: ${userInput.naturalTalents}`,
         'iching': `Consult the I Ching regarding: ${userInput.question}`,
         'angelnumbers': `Interpret the significance of ${userInput.number} for ${userInput.name}`,
         'horoscope': `Provide a detailed horoscope for ${userInput.zodiac}`,
-        'dream': `Interpret this dream: ${userInput.dream}`,
+        'dreamanalysis': `Interpret this dream: ${userInput.dream}`, // Added dreamanalysis instead of 'dream'
+        'aura': `Read the aura and energy based on current feelings: ${userInput.feelings}`,
         'aura': `Read the aura and energy based on current feelings: ${userInput.feelings}`
       };
 
