@@ -448,7 +448,7 @@ Natural Talents: ${userInput.naturalTalents}`,
         'horoscope': `Provide a detailed horoscope for ${userInput.zodiac}`,
         'dreamanalysis': `Interpret this dream: ${userInput.dream}`, // Added dreamanalysis instead of 'dream'
         'aura': `Read the aura and energy based on current feelings: ${userInput.feelings}`,
-        'aura': `Read the aura and energy based on current feelings: ${userInput.feelings}`
+// Remove duplicate 'aura' key since it was already defined above
       };
 
       const prompt = prompts[readingType];
