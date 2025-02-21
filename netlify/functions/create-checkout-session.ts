@@ -6,8 +6,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
 });
 
 const PRICE_IDS = {
-  premium: 'price_1QKja1G3HGXKeksqUqC0edF0',
-  basic: 'price_1QKjTIG3HGXKeksq3NJSoxfN'
+  premium: process.env.STRIPE_PRICE_PREMIUM || 'price_1QKja1G3HGXKeksqUqC0edF0',
+  basic: process.env.STRIPE_PRICE_BASIC || 'price_1QKjTIG3HGXKeksq3NJSoxfN'
 };
 
 export const handler: Handler = async (event) => {
