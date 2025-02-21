@@ -44,15 +44,8 @@ export const handler: Handler = async (event) => {
     }
 
     console.log('Raw request body:', event.body);
-        let plan;
-        try {
-          const parsedBody = JSON.parse(event.body || '{}');
-          plan = parsedBody.plan;
-          console.log('Parsed plan:', plan, 'Type:', typeof plan);
-        } catch (e) {
-          console.error('Failed to parse request body:', e);
-          throw new Error('Invalid request body');
-        }
+        const { plan } = JSON.parse(event.body || '{}');
+        console.log('Parsed plan:', plan, 'Type:', typeof plan);
     
         if (!plan) {
           console.error('Plan is undefined or null');
@@ -72,10 +65,11 @@ export const handler: Handler = async (event) => {
     const priceId = PRICE_IDS[plan];
     console.log('Selected price ID:', priceId);
     
-    if (!priceId) {
-      console.error('Invalid plan selected:', plan);
-      throw new Error('Invalid plan selected');
-    }
+    // Remove duplicate validation here
+    // if (!priceId) {
+    //   console.error('Invalid plan selected:', plan);
+    //   throw new Error('Invalid plan selected');
+    // }
     
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
