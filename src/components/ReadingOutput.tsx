@@ -36,7 +36,8 @@ const ReadingOutput: React.FC<Props> = ({ readingType, isDarkMode, reading, isLo
       'angelnumbers': 'Angel Numbers',
       'iching': 'I-Ching',
       'magic8ball': 'Magic 8 Ball',
-      'pastlife': 'Past Life'
+      'pastlife': 'Past Life',
+      'dreamanalysis': 'Dream Analysis'  // Add this line to handle dream analysis
     };
 
     return specialCases[type] || type.split(/(?=[A-Z])/)
