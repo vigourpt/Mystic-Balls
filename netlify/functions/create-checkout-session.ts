@@ -43,13 +43,16 @@ export const handler: Handler = async (event) => {
       throw new Error('Missing Stripe secret key');
     }
 
-    console.log('Request body:', event.body); // Add this line to see the raw request
+    console.log('Request body:', event.body); // Add this line
     const { plan } = JSON.parse(event.body || '{}');
     console.log('Received plan:', plan);
     console.log('Available price IDs:', PRICE_IDS);
-    console.log('Event headers:', event.headers); // Add this line to check headers
 
-    const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
+    if (!plan || !PRICE_IDS[plan]) {
+      throw new Error(`Invalid plan selected: ${plan}`);
+    }
+
+    const priceId = PRICE_IDS[plan];
     console.log('Selected price ID:', priceId);
     
     if (!priceId) {
@@ -68,15 +71,15 @@ export const handler: Handler = async (event) => {
       ],
       success_url: `${process.env.URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.URL}/`,
+      customer_email: event.headers['x-customer-email'] || undefined,
       customer_creation: 'always',
       payment_method_collection: 'always',
       allow_promotion_codes: true,
       billing_address_collection: 'required',
       metadata: {
         plan: plan
-      },
-      customer_email: event.headers['x-customer-email'] || undefined,  // Add this line
-      });
+      }
+    });
 
     return {
       statusCode: 200,

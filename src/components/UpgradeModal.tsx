@@ -25,7 +25,7 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-customer-email': user?.email || ''
+          'x-customer-email': user.email
         },
         body: JSON.stringify({ plan })
       });
