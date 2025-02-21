@@ -35,16 +35,20 @@ export const handler: Handler = async (event) => {
   }
 
   try {
+    console.log('Secret key exists:', !!process.env.STRIPE_SECRET_KEY);
+    console.log('Secret key prefix:', process.env.STRIPE_SECRET_KEY?.substring(0, 7));
+    
     if (!process.env.STRIPE_SECRET_KEY) {
       console.error('Missing Stripe secret key');
       throw new Error('Missing Stripe secret key');
     }
 
     const { plan } = JSON.parse(event.body || '{}');
-    console.log('Received plan:', plan); // Add logging
+    console.log('Received plan:', plan);
+    console.log('Available price IDs:', PRICE_IDS);
 
     const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
-    console.log('Selected price ID:', priceId); // Add logging
+    console.log('Selected price ID:', priceId);
     
     if (!priceId) {
       console.error('Invalid plan selected:', plan);
