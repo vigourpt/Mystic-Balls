@@ -219,16 +219,16 @@ export const READING_TYPES: ReadingType[] = [
   },
   {
     id: 'dreamanalysis',
-    title: 'Dream Analysis',  // Changed from name to title
+    title: 'Dream Analysis',
     description: 'Uncover the hidden meanings in your dreams',
     icon: Moon,
     fields: [
       {
-        name: 'dream',
+        name: 'dreamDescription',  // Changed from 'dream' to match backend expectations
         type: 'textarea',
         label: 'Dream Description',
-        displayName: 'Describe Your Dream',
-        placeholder: 'Describe your dream in detail...',
+        displayName: 'Tell us about your dream',
+        placeholder: 'Please describe your dream in detail, including any symbols, feelings, or memorable elements that stood out to you...',
         required: true
       }
     ]

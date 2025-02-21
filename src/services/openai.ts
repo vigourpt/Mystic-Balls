@@ -11,7 +11,7 @@ const validateRequiredFields = (readingType: ReadingTypeId, userInput: Record<st
     'iching': ['question'],
     'angelnumbers': ['numbers'],
     'horoscope': ['zodiac'],
-    'dreamanalysis': ['dream'],
+    'dreamanalysis': ['dreamDescription'],  // Update to match the new field name
     'magic8ball': ['question'],
     'aura': ['feelings'],
     'pastlife': ['concerns']
