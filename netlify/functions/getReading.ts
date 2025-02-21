@@ -91,7 +91,7 @@ Use clear, compassionate language and maintain proper markdown formatting.`
 
 Use clear, compassionate language and maintain proper markdown formatting.`
   },
-  'dream': {
+  'dreamanalysis': {  // Changed from 'dream' to match the reading type ID
     maxTokens: 1000,
     temperature: 0.7,
     systemPrompt: `You are a skilled dream interpreter. Analyze the dream and provide:
