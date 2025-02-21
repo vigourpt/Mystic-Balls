@@ -5,6 +5,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-10-16'
 });
 
+const PRICE_IDS = {
+  premium: 'price_1QKja1G3HGXKeksqUqC0edF0',
+  basic: 'price_1QKjTIG3HGXKeksq3NJSoxfN'
+};
+
 export const handler: Handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return {
@@ -14,7 +19,8 @@ export const handler: Handler = async (event) => {
   }
 
   try {
-    const { priceId } = JSON.parse(event.body || '{}');
+    const { plan } = JSON.parse(event.body || '{}');
+    const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS] || PRICE_IDS.basic;
     
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
