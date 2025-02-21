@@ -2,7 +2,7 @@ import { Handler } from '@netlify/functions';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2023-10-16'  // Update to current stable version
+  apiVersion: '2025-01-27.acacia'  // Current API version for 2025
 });
 
 const PRICE_IDS = {
@@ -36,16 +36,18 @@ export const handler: Handler = async (event) => {
 
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
+      console.error('Missing Stripe secret key');
       throw new Error('Missing Stripe secret key');
     }
 
     const { plan } = JSON.parse(event.body || '{}');
-    if (!plan) {
-      throw new Error('Missing plan parameter');
-    }
+    console.log('Received plan:', plan); // Add logging
 
     const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
+    console.log('Selected price ID:', priceId); // Add logging
+    
     if (!priceId) {
+      console.error('Invalid plan selected:', plan);
       throw new Error('Invalid plan selected');
     }
     
