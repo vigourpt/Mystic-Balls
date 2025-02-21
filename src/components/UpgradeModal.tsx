@@ -17,8 +17,13 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ plan })
+        body: JSON.stringify({ plan }) // Make sure this matches exactly
       });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create checkout session');
+      }
 
       const { sessionId } = await response.json();
       

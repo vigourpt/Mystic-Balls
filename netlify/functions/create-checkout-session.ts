@@ -43,9 +43,11 @@ export const handler: Handler = async (event) => {
       throw new Error('Missing Stripe secret key');
     }
 
+    console.log('Request body:', event.body); // Add this line to see the raw request
     const { plan } = JSON.parse(event.body || '{}');
     console.log('Received plan:', plan);
     console.log('Available price IDs:', PRICE_IDS);
+    console.log('Event headers:', event.headers); // Add this line to check headers
 
     const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
     console.log('Selected price ID:', priceId);
