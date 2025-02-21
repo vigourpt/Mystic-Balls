@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react';
+import type { IconType } from 'react-icons';
 
 export type ReadingTypeId = 'tarot' | 'numerology' | 'astrology' | 'oracle' | 'runes' | 'iching' | 'angelnumbers' | 'horoscope' | 'dreamanalysis' | 'magic8ball' | 'aura' | 'pastlife';
 
@@ -7,7 +7,7 @@ export interface ReadingType {
   title: string;
   description: string;
   icon: IconType;
-  fields: ReadingInput[];  // Change 'inputs' to 'fields' to match the data structure
+  fields: ReadingField[];  // Change 'inputs' to 'fields' to match the data structure
 }
 
 export interface ReadingField {
