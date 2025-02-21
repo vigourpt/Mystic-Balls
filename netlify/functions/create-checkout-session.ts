@@ -43,9 +43,26 @@ export const handler: Handler = async (event) => {
       throw new Error('Missing Stripe secret key');
     }
 
-    console.log('Request body:', event.body); // Add this line
-    const { plan } = JSON.parse(event.body || '{}');
-    console.log('Received plan:', plan);
+    console.log('Raw request body:', event.body);
+        let plan;
+        try {
+          const parsedBody = JSON.parse(event.body || '{}');
+          plan = parsedBody.plan;
+          console.log('Parsed plan:', plan, 'Type:', typeof plan);
+        } catch (e) {
+          console.error('Failed to parse request body:', e);
+          throw new Error('Invalid request body');
+        }
+    
+        if (!plan) {
+          console.error('Plan is undefined or null');
+          throw new Error('Plan is required');
+        }
+    
+        if (!PRICE_IDS[plan]) {
+          console.error(`No price ID found for plan: ${plan}`);
+          throw new Error(`Invalid plan selected: ${plan}`);
+        }
     console.log('Available price IDs:', PRICE_IDS);
 
     if (!plan || !PRICE_IDS[plan]) {
