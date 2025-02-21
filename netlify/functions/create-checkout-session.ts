@@ -2,7 +2,7 @@ import { Handler } from '@netlify/functions';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-01-27.acacia'
+  apiVersion: '2023-10-16'  // Update to current stable version
 });
 
 const PRICE_IDS = {
@@ -11,16 +11,43 @@ const PRICE_IDS = {
 };
 
 export const handler: Handler = async (event) => {
+  // Add CORS headers
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS'
+  };
+
+  // Handle OPTIONS request
+  if (event.httpMethod === 'OPTIONS') {
+    return {
+      statusCode: 204,
+      headers
+    };
+  }
+
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
+      headers,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
 
   try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error('Missing Stripe secret key');
+    }
+
     const { plan } = JSON.parse(event.body || '{}');
-    const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS] || PRICE_IDS.basic;
+    if (!plan) {
+      throw new Error('Missing plan parameter');
+    }
+
+    const priceId = PRICE_IDS[plan as keyof typeof PRICE_IDS];
+    if (!priceId) {
+      throw new Error('Invalid plan selected');
+    }
     
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
@@ -37,13 +64,17 @@ export const handler: Handler = async (event) => {
 
     return {
       statusCode: 200,
+      headers,
       body: JSON.stringify({ sessionId: session.id })
     };
   } catch (error) {
     console.error('Stripe error:', error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: 'Failed to create checkout session' })
+      headers,
+      body: JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'Failed to create checkout session'
+      })
     };
   }
 };
