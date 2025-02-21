@@ -68,6 +68,13 @@ export const handler: Handler = async (event) => {
       ],
       success_url: `${process.env.URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.URL}/`,
+      customer_creation: 'always',
+      payment_method_collection: 'always',
+      allow_promotion_codes: true,
+      billing_address_collection: 'required',
+      metadata: {
+        plan: plan
+      }
     });
 
     return {

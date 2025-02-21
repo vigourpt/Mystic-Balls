@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Check } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
+import { useAuthState } from '../hooks/useAuthState'; // Add this import
 
 interface Props {
   isOpen: boolean;
@@ -8,33 +9,41 @@ interface Props {
 }
 
 const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
+  const { user } = useAuthState(); // Add this line
+  
   if (!isOpen) return null;
 
   const handlePlanSelection = async (plan: 'basic' | 'premium') => {
     try {
+      console.log('Starting checkout for plan:', plan);
+      console.log('Environment variables loaded:', {
+        stripeKey: !!import.meta.env.VITE_STRIPE_PUBLIC_KEY,
+      });
+      
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-customer-email': user?.email // Add user email if available
         },
-        body: JSON.stringify({ plan }) // Make sure this matches exactly
+        body: JSON.stringify({ plan })
       });
 
+      const responseData = await response.json();
+      console.log('Checkout response:', responseData);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create checkout session');
+        throw new Error(responseData.error || 'Failed to create checkout session');
       }
 
-      const { sessionId } = await response.json();
-      
       const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
       if (stripe) {
-        await stripe.redirectToCheckout({ sessionId });
+        await stripe.redirectToCheckout({ sessionId: responseData.sessionId });
       }
     } catch (error) {
-      console.error('Error creating checkout session:', error);
+      console.error('Error details:', error); // Enhanced error logging
     }
-  };
+};
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
