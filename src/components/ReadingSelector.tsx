@@ -27,11 +27,11 @@ const ReadingSelector: React.FC<Props> = ({ READING_TYPES, handleReadingTypeSele
                 isDarkMode ? 'bg-indigo-900/30' : 'bg-white/80'
               } backdrop-blur-sm hover:scale-105 transition-all duration-300 flex flex-col items-center text-center`}
             >
-              <Icon className={`w-12 h-12 mb-4 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-600'}`} />
-              <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                {type.title}
+              <Icon className={`w-16 h-16 mb-6 ${isDarkMode ? 'text-indigo-300' : 'text-indigo-600'}`} />
+              <h3 className={`text-2xl font-bold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                {type.title.replace(' Reading', '')}
               </h3>
-              <p className={`text-sm ${isDarkMode ? 'text-indigo-200' : 'text-indigo-600'}`}>
+              <p className={`text-base leading-relaxed ${isDarkMode ? 'text-indigo-200' : 'text-indigo-600'}`}>
                 {type.description}
               </p>
             </button>
