@@ -14,7 +14,7 @@ export const handler: Handler = async (event) => {
   // Add CORS headers
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, x-customer-email',
     'Access-Control-Allow-Methods': 'POST, OPTIONS'
   };
 
@@ -74,8 +74,9 @@ export const handler: Handler = async (event) => {
       billing_address_collection: 'required',
       metadata: {
         plan: plan
-      }
-    });
+      },
+      customer_email: event.headers['x-customer-email'] || undefined,  // Add this line
+      });
 
     return {
       statusCode: 200,
