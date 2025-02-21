@@ -19,15 +19,19 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
   const handlePlanSelection = async (plan: 'basic' | 'premium') => {
     try {
       setIsLoading(true);
+      setError(null);
       console.log('Starting checkout for plan:', plan);
+      
+      // Add this debug log
+      console.log('Request payload:', { plan, email: user?.email || '' });
       
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-customer-email': user.email
+          'x-customer-email': user?.email || ''
         },
-        body: JSON.stringify({ plan })
+        body: JSON.stringify({ plan: plan })
       });
 
       const responseData = await response.json();
