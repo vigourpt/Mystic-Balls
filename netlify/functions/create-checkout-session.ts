@@ -44,8 +44,11 @@ export const handler: Handler = async (event) => {
     }
 
     console.log('Raw request body:', event.body);
-        const { plan } = JSON.parse(event.body || '{}');
-        console.log('Parsed plan:', plan, 'Type:', typeof plan);
+        // Fix indentation and add more detailed logging
+        const body = JSON.parse(event.body || '{}');
+        console.log('Parsed body:', body);
+        const { plan } = body;
+        console.log('Extracted plan:', plan, 'Type:', typeof plan);
     
         if (!plan) {
           console.error('Plan is undefined or null');

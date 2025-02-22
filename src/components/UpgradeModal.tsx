@@ -21,8 +21,8 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setIsLoading(true);
       setError(null);
       console.log('Starting checkout for plan:', plan);
-      const payload = { plan: plan };
-      console.log('Request payload:', payload);
+      const payload = { plan };
+      console.log('Sending payload:', payload);
       
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
