@@ -20,19 +20,25 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
     try {
       setIsLoading(true);
       setError(null);
-      console.log('Starting checkout for plan:', plan);
-      const payload = { plan };
-      console.log('Sending payload:', payload);
+      
+      const requestBody = { plan };
+      console.log('Sending request with body:', requestBody);
       
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
           'x-customer-email': user?.email || ''
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(requestBody)
       });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+      
       const responseData = await response.json();
       console.log('Checkout response:', responseData);
 
