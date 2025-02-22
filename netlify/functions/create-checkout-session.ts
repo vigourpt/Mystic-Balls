@@ -44,88 +44,72 @@ export const handler: Handler = async (event) => {
     }
 
     console.log('Raw request body:', event.body);
-        let parsedBody;
-        try {
-          parsedBody = JSON.parse(event.body || '{}');
-          console.log('Successfully parsed body:', parsedBody);
-        } catch (e) {
-          console.error('Failed to parse request body:', e);
-          throw new Error('Invalid request body');
-        }
-    
-        const { plan } = parsedBody;
-        console.log('Extracted plan:', plan, 'Type:', typeof plan);
-    
-        if (!plan) {
-          console.error('Plan is undefined or null');
-          throw new Error('Plan is required');
-        }
-    
-        if (!PRICE_IDS[plan]) {
-          console.error(`No price ID found for plan: ${plan}`);
-          throw new Error(`Invalid plan selected: ${plan}`);
-        }
-    console.log('Available price IDs:', PRICE_IDS);
+    if (!event.body) {
+      throw new Error('Request body is empty');
+    }
 
-    if (!plan || !PRICE_IDS[plan]) {
+    const parsedBody = JSON.parse(event.body);
+    console.log('Successfully parsed body:', parsedBody);
+
+    const { plan } = parsedBody;
+    console.log('Extracted plan:', plan, 'Type:', typeof plan);
+
+    if (!plan) {
+      console.error('Plan is undefined or null');
+      throw new Error('Plan is required');
+    }
+
+    if (typeof plan !== 'string') {
+      throw new Error('Plan must be a string');
+    }
+
+    if (!['basic', 'premium'].includes(plan)) {
+      throw new Error('Plan must be either basic or premium');
+    }
+
+    if (!PRICE_IDS[plan]) {
+      console.error(`No price ID found for plan: ${plan}`);
       throw new Error(`Invalid plan selected: ${plan}`);
     }
 
-    try {
-        // Simplify body parsing
-        if (!event.body) {
-          throw new Error('Request body is empty');
-        }
-    
-        const body = JSON.parse(event.body);
-        console.log('Parsed request body:', body);
-    
-        // Strict type checking for plan
-        if (typeof body.plan !== 'string') {
-          throw new Error('Plan must be a string');
-        }
-    
-        if (!['basic', 'premium'].includes(body.plan)) {
-          throw new Error('Plan must be either basic or premium');
-        }
-    
-        const priceId = PRICE_IDS[body.plan];
-        console.log('Using price ID:', priceId);
-    
-        const session = await stripe.checkout.sessions.create({
-          mode: 'subscription',
-          payment_method_types: ['card'],
-          line_items: [
-            {
-              price: priceId,
-              quantity: 1,
-            },
-          ],
-          success_url: `${process.env.URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${process.env.URL}/`,
-          customer_email: event.headers['x-customer-email'] || undefined,
-          customer_creation: 'always',
-          payment_method_collection: 'always',
-          allow_promotion_codes: true,
-          billing_address_collection: 'required',
-          metadata: {
-            plan: plan
-          }
-        });
-    
-        return {
-          statusCode: 200,
-          headers,
-          body: JSON.stringify({ sessionId: session.id })
-        };
-      } catch (error) {
-        console.error('Stripe error:', error);
-        return {
-          statusCode: 500,
-          headers,
-          body: JSON.stringify({ 
-            error: error instanceof Error ? error.message : 'Failed to create checkout session'
-          })
-        };
+    const priceId = PRICE_IDS[plan];
+    console.log('Using price ID:', priceId);
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.URL}/`,
+      customer_email: event.headers['x-customer-email'] || undefined,
+      customer_creation: 'always',
+      payment_method_collection: 'always',
+      allow_promotion_codes: true,
+      billing_address_collection: 'required',
+      metadata: {
+        plan: plan
       }
+    });
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ sessionId: session.id })
+    };
+
+  } catch (error) {
+    console.error('Stripe error:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ 
+        error: error instanceof Error ? error.message : 'Failed to create checkout session'
+      })
+    };
+  }
 };
