@@ -3,6 +3,8 @@ import { X, Check } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useAuthState } from '../hooks/useAuthState';
 import { formatPrice } from '../utils/currency';
+import { supabaseClient as supabase } from '../lib/supabaseClient';  // Fix import path and alias
+import { STRIPE_CONFIG } from '../config/stripe';
 
 interface Props {
   isOpen: boolean;
@@ -17,48 +19,41 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handlePlanSelection = async (plan: 'basic' | 'premium') => {
-    if (isLoading) return; // Prevent multiple clicks
+    if (isLoading || !user) return; // Add user check
     
     try {
       setIsLoading(true);
       setError(null);
       
-      const requestBody = { plan };
-      console.log('Sending request with body:', requestBody);
-      
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: {
-          'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'x-customer-email': user?.email || ''
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
         },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify({ 
+          priceId: plan === 'basic' ? STRIPE_CONFIG.priceBasic : STRIPE_CONFIG.pricePremium,
+          customerId: user.id // Add user ID to request
+        })
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
-      }
+  
+      const data = await response.json();
       
-      const responseData = await response.json();
-      console.log('Checkout response:', responseData);
-
       if (!response.ok) {
-        throw new Error(responseData.error || 'Failed to create checkout session');
+        throw new Error(data.error || 'Failed to create checkout session');
       }
-
-      // Initialize Stripe only once
-      const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-      const stripe = await stripePromise;
-      
-      if (!stripe) {
-        throw new Error('Failed to initialize Stripe');
-      }
-
-      const { error } = await stripe.redirectToCheckout({ sessionId: responseData.sessionId });
-      if (error) {
-        throw error;
+  
+      // Use the URL from the response if available, otherwise fall back to redirect with sessionId
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.sessionId) {
+        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+        if (!stripe) {
+          throw new Error('Failed to initialize Stripe');
+        }
+        await stripe.redirectToCheckout({ sessionId: data.sessionId });
+      } else {
+        throw new Error('No checkout URL or session ID returned');
       }
     } catch (error) {
       console.error('Error details:', error);
