@@ -44,12 +44,21 @@ export const handler: Handler = async (event) => {
     }
 
     console.log('Raw request body:', event.body);
+    console.log('Request body type:', typeof event.body);
+    console.log('Request headers:', event.headers);
+    
     if (!event.body) {
       throw new Error('Request body is empty');
     }
 
-    const parsedBody = JSON.parse(event.body);
-    console.log('Successfully parsed body:', parsedBody);
+    let parsedBody;
+    try {
+      parsedBody = JSON.parse(event.body);
+      console.log('Successfully parsed body:', parsedBody);
+    } catch (e) {
+      console.error('JSON parse error:', e);
+      throw new Error('Invalid JSON in request body');
+    }
 
     const { plan } = parsedBody;
     console.log('Extracted plan:', plan, 'Type:', typeof plan);
