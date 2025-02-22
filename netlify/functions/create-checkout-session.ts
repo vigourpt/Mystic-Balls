@@ -44,10 +44,16 @@ export const handler: Handler = async (event) => {
     }
 
     console.log('Raw request body:', event.body);
-        // Fix indentation and add more detailed logging
-        const body = JSON.parse(event.body || '{}');
-        console.log('Parsed body:', body);
-        const { plan } = body;
+        let parsedBody;
+        try {
+          parsedBody = JSON.parse(event.body || '{}');
+          console.log('Successfully parsed body:', parsedBody);
+        } catch (e) {
+          console.error('Failed to parse request body:', e);
+          throw new Error('Invalid request body');
+        }
+    
+        const { plan } = parsedBody;
         console.log('Extracted plan:', plan, 'Type:', typeof plan);
     
         if (!plan) {
