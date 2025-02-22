@@ -17,6 +17,8 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handlePlanSelection = async (plan: 'basic' | 'premium') => {
+    if (isLoading) return; // Prevent multiple clicks
+    
     try {
       setIsLoading(true);
       setError(null);
