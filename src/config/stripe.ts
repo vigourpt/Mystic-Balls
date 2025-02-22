@@ -1,3 +1,5 @@
 export const STRIPE_CONFIG = {
-  publishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  publicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY || '',
+  priceBasic: import.meta.env.VITE_STRIPE_PRICE_BASIC || '',
+  pricePremium: import.meta.env.VITE_STRIPE_PRICE_PREMIUM || ''
 };

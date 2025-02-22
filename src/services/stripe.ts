@@ -1,50 +1,43 @@
 import { loadStripe } from '@stripe/stripe-js';
 import { STRIPE_CONFIG } from '../config/stripe';
 
-export const createCheckoutSession = async (priceId: string, userId: string, userEmail: string) => {
-  if (!priceId || !userId) {
-    throw new Error('Missing required parameters for checkout');
+let stripePromise: Promise<any> | null = null;
+
+export const getStripe = () => {
+  if (!stripePromise) {
+    stripePromise = loadStripe(STRIPE_CONFIG.publicKey);
   }
+  return stripePromise;
+};
 
+export const createCheckoutSession = async (priceId: string) => {
   try {
-    // Initialize Stripe with error handling
-    const stripe = await loadStripe(STRIPE_CONFIG.publishableKey);
-    if (!stripe) {
-      throw new Error('Failed to initialize Stripe. Please try again later.');
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(userEmail)) {
-      throw new Error('Invalid email address');
-    }
-
-    // Create checkout session with enhanced error handling
     const response = await fetch('/.netlify/functions/create-checkout-session', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        priceId,
-        customerId: userId,
-        customerEmail: userEmail 
-      })
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ priceId }),
     });
 
-    const session = await response.json();
-    if (session.error) {
-      throw new Error(session.error);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
     }
 
-    const { error } = await stripe.redirectToCheckout({
-      sessionId: session.id
-    });
+    const { sessionId } = await response.json();
+    const stripe = await getStripe();
+    
+    if (!stripe) {
+      throw new Error('Stripe failed to load');
+    }
 
+    const { error } = await stripe.redirectToCheckout({ sessionId });
+    
     if (error) {
-      console.error('Stripe checkout error:', error);
-      throw new Error(error.message || 'Failed to initiate checkout. Please try again.');
+      throw error;
     }
   } catch (error) {
-    console.error('Error creating checkout session:', error);
-    throw error instanceof Error ? error : new Error('An unexpected error occurred');
+    console.error('Error in createCheckoutSession:', error);
+    throw error;
   }
 };
