@@ -2,7 +2,7 @@ import { Handler } from '@netlify/functions';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2025-01-27.acacia'  // Current API version for 2025
+  apiVersion: '2023-10-16'  // Updated to supported version
 });
 
 const PRICE_IDS = {
