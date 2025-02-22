@@ -29,7 +29,10 @@ export const handler: Handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ sessionId: session.id }),
+      body: JSON.stringify({ 
+        sessionId: session.id,
+        url: session.url // Include the URL in the response
+      }),
     };
   } catch (error) {
     console.error('Stripe checkout error:', error);
