@@ -1,6 +1,7 @@
 import { loadStripe } from '@stripe/stripe-js';
 import { STRIPE_CONFIG } from '../config/stripe';
 
+// Ensure single instance of Stripe client
 let stripePromise: Promise<any> | null = null;
 
 export const getStripe = () => {
@@ -12,13 +13,15 @@ export const getStripe = () => {
 
 export const createCheckoutSession = async (priceId: string) => {
   try {
-    // Validate priceId before making request
     if (!priceId) {
       throw new Error('Price ID is required');
     }
 
-    // Add error logging for debugging
     console.log('Creating checkout session with priceId:', priceId);
+
+    // Use absolute URLs for success and cancel paths
+    const successUrl = new URL('/success', window.location.origin).toString();
+    const cancelUrl = new URL('/', window.location.origin).toString();
 
     const response = await fetch('/.netlify/functions/create-checkout-session', {
       method: 'POST',
@@ -27,36 +30,30 @@ export const createCheckoutSession = async (priceId: string) => {
       },
       body: JSON.stringify({ 
         priceId,
-        successUrl: `${window.location.origin}/success`,
-        cancelUrl: `${window.location.origin}/`
+        successUrl,
+        cancelUrl
       }),
     });
 
-    const data = await response.json();
-
     if (!response.ok) {
-      throw new Error(data.error || 'Failed to create checkout session');
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to create checkout session');
     }
+
+    const data = await response.json();
 
     if (!data.sessionId) {
       throw new Error('No session ID returned from server');
     }
 
     const stripe = await getStripe();
-    
     if (!stripe) {
-      throw new Error('Stripe failed to load');
+      throw new Error('Stripe failed to initialize');
     }
 
-    const result = await stripe.redirectToCheckout({ sessionId: data.sessionId });
-    
-    if (result.error) {
-      throw new Error(result.error.message);
-    }
-
-    return result;
+    return stripe.redirectToCheckout({ sessionId: data.sessionId });
   } catch (error) {
-    console.error('Error in createCheckoutSession:', error);
+    console.error('Stripe checkout error:', error);
     throw error;
   }
 };
