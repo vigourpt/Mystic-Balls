@@ -41,11 +41,14 @@ export const useAuthState = () => {
     // Initialize auth state
     const initializeAuth = async () => {
       try {
+        console.log('Initializing auth...');
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!mounted) return;
         
         if (session) {
+          console.log('Session found, fetching profiles...');
           const profiles = await fetchProfiles(session.user.id);
+          console.log('Profiles fetched:', profiles);
           setState({
             user: session.user,
             loading: false,
@@ -53,6 +56,7 @@ export const useAuthState = () => {
             error: null
           });
         } else {
+          console.log('No session found');
           setState({
             user: null,
             loading: false,
@@ -61,6 +65,7 @@ export const useAuthState = () => {
           });
         }
       } catch (error) {
+        console.error('Auth initialization error:', error);
         if (!mounted) return;
         setState({
           user: null,
