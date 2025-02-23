@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
-import { supabase } from '../services/supabase';
+import { supabaseClient } from '../lib/supabaseClient';  // Update import
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -11,9 +11,10 @@ export const useAuth = () => {
   useEffect(() => {
     let mounted = true;
     
+    // Replace all instances of supabase with supabaseClient
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
       
       if (event === 'SIGNED_IN') {

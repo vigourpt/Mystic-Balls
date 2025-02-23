@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/supabase';
+import { PRODUCTION_URL } from '../config/constants';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -8,11 +9,21 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
+const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
+
 export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
+    storage: localStorage,
     autoRefreshToken: true,
-    detectSessionInUrl: true
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    storageKey: 'mystic-balls-auth'
+  },
+  global: {
+    headers: {
+      'x-site-url': siteUrl
+    }
   }
 });
 

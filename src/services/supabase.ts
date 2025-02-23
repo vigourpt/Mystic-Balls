@@ -30,12 +30,16 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   }
 });
 
+import { supabaseClient } from '../lib/supabaseClient';
+import { Database } from '../types/supabase';
+
 type Tables = Database['public']['Tables'];
 export type UserProfile = Tables['user_profiles']['Row'];
 
+// Update all functions to use supabaseClient instead of supabase
 export const signInWithGoogle = async () => {
   try {
-    return await supabase.auth.signInWithOAuth({
+    return await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: siteUrl,
