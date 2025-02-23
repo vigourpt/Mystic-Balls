@@ -41,7 +41,7 @@ export const checkHealth = async () => {
 export const checkProject = async () => {
   try {
     console.log('Starting project check...');
-    const timeoutPromise = new Promise((_, reject) => 
+    const timeoutPromise = new Promise<never>((_, reject) => 
       setTimeout(() => reject(new Error('Project check timeout after 5s')), 5000)
     );
     
@@ -50,7 +50,8 @@ export const checkProject = async () => {
       .select('id, email')
       .limit(1);
     
-    const { data, error } = await Promise.race([queryPromise, timeoutPromise]);
+    const result = await Promise.race([queryPromise, timeoutPromise]);
+    const { data, error } = result as { data: any; error: any };
     console.log('Project check response:', { data, error });
     
     if (error) {
