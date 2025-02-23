@@ -1,45 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useAuthState } from './hooks/useAuthState';
 import { READING_TYPES } from './data/readingTypes';
 import Header from './components/Header';
 import Footer from './components/Footer';
-// Remove unused import
 import ReadingSelector from './components/ReadingSelector';
-import ReadingForm from './components/ReadingForm';
 import LoadingSpinner from './components/LoadingSpinner';
 import { PricingPlan, ReadingType } from './types';
-import { checkProject } from './lib/supabaseClient';
-// Remove duplicate imports
-// import { createClient } from '@supabase/supabase-js';
-// import { supabaseClient } from './lib/supabaseClient';
+import { checkProject, supabaseClient } from './lib/supabaseClient';
 import { UserProfile } from './services/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import TourGuide from './components/TourGuide';
 import { ONBOARDING_STEPS } from './config/tutorial';
 import { Step } from './types';
-import ReadingOutput from './components/ReadingOutput';
-import FAQ from './components/FAQ';
 import { useUsageTracking } from './hooks/useUsageTracking';
 import { fireConfetti } from './utils/confetti';
-
-// Remove these duplicate Supabase initializations
-// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-// const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
-// Use the existing supabaseClient instead
-import { supabaseClient } from './lib/supabaseClient';
-
-import { Suspense, lazy } from 'react';
 
 // Lazy load components
 const LoginModal = lazy(() => import('./components/LoginModal'));
 const UpgradeModal = lazy(() => import('./components/UpgradeModal'));
-// Remove unused PaymentSuccess import since it's not being used in the component
+const ReadingForm = lazy(() => import('./components/ReadingForm'));
+const ReadingOutput = lazy(() => import('./components/ReadingOutput'));
+const FAQ = lazy(() => import('./components/FAQ'));
 
-// Add FC type to App component
 const App = (): JSX.Element => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
@@ -51,16 +35,17 @@ const App = (): JSX.Element => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [profiles, setProfiles] = useState<UserProfile[] | null>(null);
   const [currentPage, setCurrentPage] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState<Step | null>(() => {
-    return ONBOARDING_STEPS.length > 0 ? ONBOARDING_STEPS[0] as Step : null;
-  });
+  const [currentStep, setCurrentStep] = useState<Step | null>(() => 
+    ONBOARDING_STEPS.length > 0 ? ONBOARDING_STEPS[0] as Step : null
+  );
   const [readingOutput, setReadingOutput] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
   const { user, loading: authLoading } = useAuthState();
   const { signOut } = useAuth();
   useUsageTracking(user?.id ?? null);
 
-  const handleReadingSubmit = async (formData: Record<string, string>): Promise<void> => {
+  const handleReadingSubmit = useCallback(async (formData: Record<string, string>): Promise<void> => {
     if (!user) {
       setShowLoginModal(true);
       return;
@@ -70,7 +55,6 @@ const App = (): JSX.Element => {
     setReadingOutput(null);
 
     try {
-      // Get the session first
       const { data: { session } } = await supabaseClient.auth.getSession();
       
       const response = await fetch('/.netlify/functions/getReading', {
@@ -94,26 +78,19 @@ const App = (): JSX.Element => {
       }
 
       const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
+      if (data.error) throw new Error(data.error);
       
       setReadingOutput(data.reading);
       fireConfetti();
       
       if (!profiles?.[0]?.is_premium) {
-        // Fetch the updated profile immediately
         const { data: updatedProfile, error } = await supabaseClient
           .from('user_profiles')
           .select('*')
           .eq('id', user.id)
           .single();
           
-        if (error) {
-          console.error('Error fetching updated profile:', error);
-        } else if (updatedProfile) {
-          setProfiles([updatedProfile]);
-        }
+        if (!error && updatedProfile) setProfiles([updatedProfile]);
       }
     } catch (error) {
       console.error('Error getting reading:', error);
@@ -121,31 +98,9 @@ const App = (): JSX.Element => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user, selectedReadingType, profiles, setShowLoginModal, setShowPaymentModal]);
 
-  const nextStep = () => {
-    const currentIndex = ONBOARDING_STEPS.findIndex(step => step.id === currentStep?.id);
-    if (currentIndex >= 0 && currentIndex < ONBOARDING_STEPS.length - 1) {
-      setCurrentStep(ONBOARDING_STEPS[currentIndex + 1] as Step);
-    } else {
-      setCurrentStep(null);
-    }
-  };
-
-  const handleReadingTypeSelect = (readingType: ReadingType) => {
-    setSelectedReadingType(readingType);
-    setReadingOutput(null);
-  };
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
-  }, [isDarkMode]);
-
-  const handleDarkModeToggle = () => {
-    setIsDarkMode((prev: boolean) => !prev);
-  };
-
-  const handleSubscribe = async (plan: PricingPlan) => {
+  const handleSubscribe = useCallback(async (plan: PricingPlan) => {
     try {
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
@@ -154,12 +109,9 @@ const App = (): JSX.Element => {
       });
       const result = await response.json();
       
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      
+      if (result.error) throw new Error(result.error);
       if (result.url) {
-        fireConfetti(); // Add confetti before redirect
+        fireConfetti();
         window.location.href = result.url;
       } else {
         throw new Error('No checkout URL returned');
@@ -168,9 +120,30 @@ const App = (): JSX.Element => {
       console.error('Error creating checkout session:', err);
       throw err;
     }
-  };
+  }, [user]);
 
-  // Remove this duplicate handleReadingSubmit function
+  const nextStep = useCallback(() => {
+    const currentIndex = ONBOARDING_STEPS.findIndex(step => step.id === currentStep?.id);
+    if (currentIndex >= 0 && currentIndex < ONBOARDING_STEPS.length - 1) {
+      setCurrentStep(ONBOARDING_STEPS[currentIndex + 1] as Step);
+    } else {
+      setCurrentStep(null);
+    }
+  }, [currentStep]);
+
+  const handleReadingTypeSelect = useCallback((readingType: ReadingType) => {
+    setSelectedReadingType(readingType);
+    setReadingOutput(null);
+  }, []);
+
+  const handleDarkModeToggle = useCallback(() => {
+    setIsDarkMode((prev: boolean) => !prev);  // Add type annotation for prev
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
+
   useEffect(() => {
     checkProject();
   }, []);
@@ -179,39 +152,87 @@ const App = (): JSX.Element => {
     const fetchProfiles = async () => {
       try {
         const { data, error } = await supabaseClient
-          .from('user_profiles')  // Change back to user_profiles
+          .from('user_profiles')
           .select('*');
 
-        if (error) {
-          setProfiles(null);
-        } else {
-          setProfiles(data);
-        }
+        setProfiles(error ? null : data);
       } catch (err) {
         setProfiles(null);
       }
     };
   
     fetchProfiles();
-  }, []); // Run once on component mount
-  
-  // Remove the direct fetchProfiles() call
+  }, []);
 
-  if (authLoading) {
-    console.log('Auth is still loading...');
+  // Either use mainContent in the JSX or remove it if not needed
+  const mainContent = useMemo(() => {
+    if (currentPage === 'privacy') {
+      return <PrivacyPolicy isDarkMode={isDarkMode} onBack={() => setCurrentPage(null)} />;
+    }
+    if (currentPage === 'terms') {
+      return <TermsOfService isDarkMode={isDarkMode} onBack={() => setCurrentPage(null)} />;
+    }
+    if (selectedReadingType) {
+      return (
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={() => setSelectedReadingType(null)}
+            className="mb-8 flex items-center gap-2 px-4 py-2 text-white bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg transition-colors"
+          >
+            <span>←</span>
+            Back to Reading Types
+          </button>
+          <Suspense fallback={<LoadingSpinner />}>
+            <ReadingForm
+              readingType={selectedReadingType}
+              onSubmit={handleReadingSubmit}
+              isDarkMode={isDarkMode}
+            />
+            {readingOutput && (
+              <div className="mt-8">
+                <ReadingOutput
+                  readingType={selectedReadingType}
+                  isDarkMode={isDarkMode}
+                  reading={readingOutput}
+                  isLoading={isLoading}
+                />
+                <button
+                  onClick={() => setSelectedReadingType(null)}
+                  className="mt-8 flex items-center gap-2 px-4 py-2 text-white bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg transition-colors mx-auto"
+                >
+                  <span>←</span>
+                  Back to Reading Types
+                </button>
+              </div>
+            )}
+          </Suspense>
+        </div>
+      );
+    }
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner 
-          size="large"
-          message="Initializing application..."
-          showSlowLoadingMessage={true}
+      <div>
+        <ReadingSelector
+          READING_TYPES={READING_TYPES}
+          handleReadingTypeSelect={handleReadingTypeSelect}
+          isDarkMode={isDarkMode}
         />
       </div>
     );
-  }
+}, [currentPage, selectedReadingType, isDarkMode, handleReadingTypeSelect, readingOutput, isLoading, handleReadingSubmit]);
 
-  // Remove unused handleSubscribe if not needed
-  
+// Add loading check back
+if (authLoading) {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <LoadingSpinner 
+        size="large"
+        message="Initializing application..."
+        showSlowLoadingMessage={true}
+      />
+    </div>
+  );
+}
+
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       isDarkMode 
@@ -241,57 +262,7 @@ const App = (): JSX.Element => {
         </div>
       </div>
       <main className="container mx-auto px-4 py-12">
-        {currentPage === 'privacy' ? (
-          <PrivacyPolicy 
-            isDarkMode={isDarkMode} 
-            onBack={() => setCurrentPage(null)} 
-          />
-        ) : currentPage === 'terms' ? (
-          <TermsOfService 
-            isDarkMode={isDarkMode} 
-            onBack={() => setCurrentPage(null)} 
-          />
-        ) : selectedReadingType ? (
-          <div className="max-w-4xl mx-auto">
-            <button
-              onClick={() => setSelectedReadingType(null)}
-              className="mb-8 flex items-center gap-2 px-4 py-2 text-white bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg transition-colors"
-            >
-              <span>←</span>
-              Back to Reading Types
-            </button>
-            <ReadingForm
-              readingType={selectedReadingType}
-              onSubmit={handleReadingSubmit}
-              isDarkMode={isDarkMode}
-            />
-            {readingOutput && (
-              <div className="mt-8">
-                <ReadingOutput
-                  readingType={selectedReadingType}
-                  isDarkMode={isDarkMode}
-                  reading={readingOutput}
-                  isLoading={isLoading}
-                />
-                <button
-                  onClick={() => setSelectedReadingType(null)}
-                  className="mt-8 flex items-center gap-2 px-4 py-2 text-white bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg transition-colors mx-auto"
-                >
-                  <span>←</span>
-                  Back to Reading Types
-                </button>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div>
-            <ReadingSelector
-              READING_TYPES={READING_TYPES}
-              handleReadingTypeSelect={handleReadingTypeSelect}
-              isDarkMode={isDarkMode}
-            />
-          </div>
-        )}
+        {mainContent}  {/* Use mainContent here instead of the inline conditions */}
       </main>
       {!selectedReadingType && !currentPage && <FAQ isDarkMode={isDarkMode} />}
       <Footer

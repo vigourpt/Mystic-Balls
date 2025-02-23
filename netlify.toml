@@ -2,18 +2,23 @@
   command = "npm run build"
   publish = "dist"
 
-[build.environment]
-  # Consolidated environment variables (no duplicates)
-  NODE_VERSION = "18.20.6"  # <-- Use this single definition
-
-[functions]
-  directory = "netlify/functions"
-
 [build.processing]
-  skip_processing = true
+  skip_processing = false
+  minify = true
+
+[build.processing.css]
+  bundle = true
+  minify = true
+
+[build.processing.js]
+  bundle = true
+  minify = true
 
 [build.processing.html]
   pretty_urls = true
+
+[build.processing.images]
+  compress = true
 
 [secrets]
   SECRETS_SCAN_OMIT_PATHS = ["dist/assets/*"]

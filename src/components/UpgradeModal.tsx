@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { X, Check } from 'lucide-react';
 import { useAuthState } from '../hooks/useAuthState';
 import { formatPrice } from '../utils/currency';
 import { PricingPlan } from '../types';
-import { PAYMENT_PLANS } from '../config/plans';  // Import payment plans
+import { PAYMENT_PLANS } from '../config/plans';
 
 interface Props {
   isOpen: boolean;
@@ -18,7 +18,14 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose, onSubscribe }) => {
   
   if (!isOpen) return null;
 
-  const handlePlanSelection = async (plan: PricingPlan) => {
+  // Memoize plans to prevent unnecessary recalculations
+  const { basicPlan, premiumPlan } = useMemo(() => ({
+    basicPlan: PAYMENT_PLANS.find(plan => plan.id === 'basic')!,
+    premiumPlan: PAYMENT_PLANS.find(plan => plan.id === 'premium')!
+  }), []);
+
+  // Memoize handler to prevent recreation on each render
+  const handlePlanSelection = useCallback(async (plan: PricingPlan) => {
     if (isLoading || !user) return;
     
     try {
@@ -31,10 +38,37 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose, onSubscribe }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isLoading, user, onSubscribe]);
 
-  const basicPlan = PAYMENT_PLANS.find(plan => plan.id === 'basic')!;
-  const premiumPlan = PAYMENT_PLANS.find(plan => plan.id === 'premium')!;
+  // Extract plan card to reduce repetition
+  const PlanCard = ({ plan }: { plan: PricingPlan }) => (
+    <div className="bg-indigo-900/50 p-6 rounded-xl">
+      <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
+      <div className="text-3xl font-bold text-white mb-4">
+        {formatPrice(plan.price)}<span className="text-lg font-normal text-indigo-200">/month</span>
+      </div>
+      <p className="text-indigo-200 mb-6">{plan.description}</p>
+      <ul className="space-y-4 mb-8">
+        {plan.features.map((feature, index) => (
+          <li key={`${plan.id}-feature-${index}`} className="flex items-center text-indigo-200">
+            <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
+            {feature}
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={() => handlePlanSelection(plan)}
+        disabled={isLoading}
+        className={`w-full ${
+          isLoading 
+            ? 'bg-fuchsia-400 cursor-not-allowed' 
+            : 'bg-fuchsia-600 hover:bg-fuchsia-500'
+        } text-white font-semibold py-2 px-4 rounded-lg transition-colors`}
+      >
+        {isLoading ? 'Processing...' : `Choose ${plan.name}`}
+      </button>
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -54,59 +88,8 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose, onSubscribe }) => {
         </p>
 
         <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-indigo-900/50 p-6 rounded-xl">
-            <h3 className="text-2xl font-bold text-white mb-2">{basicPlan.name}</h3>
-            <div className="text-3xl font-bold text-white mb-4">
-              {formatPrice(basicPlan.price)}<span className="text-lg font-normal text-indigo-200">/month</span>
-            </div>
-            <p className="text-indigo-200 mb-6">{basicPlan.description}</p>
-            <ul className="space-y-4 mb-8">
-              {basicPlan.features.map((feature, index) => (
-                <li key={index} className="flex items-center text-indigo-200">
-                  <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => handlePlanSelection(basicPlan)}
-              disabled={isLoading}
-              className={`w-full ${
-                isLoading 
-                  ? 'bg-fuchsia-400 cursor-not-allowed' 
-                  : 'bg-fuchsia-600 hover:bg-fuchsia-500'
-              } text-white font-semibold py-2 px-4 rounded-lg transition-colors`}
-            >
-              {isLoading ? 'Processing...' : `Choose ${basicPlan.name}`}
-            </button>
-          </div>
-
-          <div className="bg-indigo-900/50 p-6 rounded-xl">
-            <h3 className="text-2xl font-bold text-white mb-2">{premiumPlan.name}</h3>
-            <div className="text-3xl font-bold text-white mb-4">
-              {formatPrice(premiumPlan.price)}<span className="text-lg font-normal text-indigo-200">/month</span>
-            </div>
-            <p className="text-indigo-200 mb-6">{premiumPlan.description}</p>
-            <ul className="space-y-4 mb-8">
-              {premiumPlan.features.map((feature, index) => (
-                <li key={index} className="flex items-center text-indigo-200">
-                  <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-            <button
-              onClick={() => handlePlanSelection(premiumPlan)}
-              disabled={isLoading}
-              className={`w-full ${
-                isLoading 
-                  ? 'bg-fuchsia-400 cursor-not-allowed' 
-                  : 'bg-fuchsia-600 hover:bg-fuchsia-500'
-              } text-white font-semibold py-2 px-4 rounded-lg transition-colors`}
-            >
-              {isLoading ? 'Processing...' : `Choose ${premiumPlan.name}`}
-            </button>
-          </div>
+          <PlanCard plan={basicPlan} />
+          <PlanCard plan={premiumPlan} />
         </div>
 
         {error && (
@@ -125,6 +108,6 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose, onSubscribe }) => {
       </div>
     </div>
   );
-}
+};
 
 export default UpgradeModal;
