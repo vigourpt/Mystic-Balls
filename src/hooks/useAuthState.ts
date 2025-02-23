@@ -1,63 +1,103 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '../services/supabase';
-import { User } from '@supabase/supabase-js';
+import { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
+import { supabaseClient } from '../lib/supabaseClient';
 import { UserProfile } from '../services/supabase';
 
 export interface AuthState {
   user: User | null;
   loading: boolean;
   profiles: UserProfile[] | null;
+  error: Error | null;
 }
 
-export const useAuthState = (): AuthState => {
+export const useAuthState = () => {
   const [state, setState] = useState<AuthState>({
     user: null,
-    loading: true,
+    loading: true,  // Start with loading true
+    profiles: null,
     error: null
   });
 
   useEffect(() => {
-    // Check for email verification
-    const params = new URLSearchParams(window.location.search);
-    const isVerified = params.get('verified') === 'true';
-    
-    if (isVerified) {
-      // Clean up URL
-      window.history.replaceState({}, '', window.location.pathname);
-    }
+    let mounted = true;  // Add mounted check
 
-    // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-        if (session?.user) {
-          setState({
-            user: session.user,
-            loading: false,
-            error: null
-          });
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setState({ user: null, loading: false, error: null });
-      }
-    });
+    const fetchProfiles = async (userId: string) => {
+      if (!mounted) return null;
+      try {
+        const { data, error } = await supabaseClient
+          .from('user_profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();  // Get single profile
 
-    // Initial session check
-    const initSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        setState({
-          user: session.user,
-          loading: false,
-          error: null
-        });
-      } else {
-        setState({ user: null, loading: false, error: null });
+        if (error) throw error;
+        return data ? [data] : null;
+      } catch (error) {
+        console.error('Error fetching profiles:', error);
+        return null;
       }
     };
 
-    initSession();
+    // Initialize auth state
+    const initializeAuth = async () => {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!mounted) return;
+        
+        if (session) {
+          const profiles = await fetchProfiles(session.user.id);
+          setState({
+            user: session.user,
+            loading: false,
+            profiles: profiles,
+            error: null
+          });
+        } else {
+          setState({
+            user: null,
+            loading: false,
+            profiles: null,
+            error: null
+          });
+        }
+      } catch (error) {
+        if (!mounted) return;
+        setState({
+          user: null,
+          loading: false,
+          profiles: null,
+          error: error as Error
+        });
+      }
+    };
+
+    initializeAuth();
+
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+      async (_event: AuthChangeEvent, session: Session | null) => {
+        if (!mounted) return;
+        
+        if (session) {
+          const profiles = await fetchProfiles(session.user.id);
+          setState({
+            user: session.user,
+            loading: false,
+            profiles: profiles,
+            error: null
+          });
+        } else {
+          setState({
+            user: null,
+            loading: false,
+            profiles: null,
+            error: null
+          });
+        }
+      }
+    );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
