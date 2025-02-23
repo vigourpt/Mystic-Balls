@@ -61,11 +61,14 @@ const App: React.FC = () => {
     setReadingOutput(null);
 
     try {
+      // Get the session first
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      
       const response = await fetch('/.netlify/functions/getReading', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.data.session?.access_token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
           readingType: selectedReadingType?.id,
