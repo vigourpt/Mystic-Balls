@@ -9,7 +9,8 @@ const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
 // Move functions before they're used
 export const checkHealth = async () => {
   try {
-    const response = await fetch(`${supabaseUrl}/rest/v1/health`, {
+    // Change to a simple status check endpoint
+    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
       method: 'GET',
       headers: {
         'apikey': supabaseAnonKey,
@@ -18,9 +19,11 @@ export const checkHealth = async () => {
         'Accept': 'application/json'
       }
     });
-    const data = await response.json();
-    console.log('Health check response:', data);
-    return data;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    console.log('Health check response:', { status: response.status, ok: response.ok });
+    return { status: response.status, ok: response.ok };
   } catch (error) {
     console.error('Health check failed:', error);
     throw error;
