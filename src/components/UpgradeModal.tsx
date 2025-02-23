@@ -3,7 +3,7 @@ import { X, Check } from 'lucide-react';
 import { loadStripe } from '@stripe/stripe-js';
 import { useAuthState } from '../hooks/useAuthState';
 import { formatPrice } from '../utils/currency';
-import { supabaseClient as supabase } from '../lib/supabaseClient';  // Fix import path and alias
+import { supabaseClient } from '../lib/supabaseClient';  // Fix import
 import { STRIPE_CONFIG } from '../config/stripe';
 
 interface Props {
@@ -25,15 +25,19 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setIsLoading(true);
       setError(null);
       
+      // Get the current session
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      if (!session) throw new Error('No active session');
+
       const response = await fetch('/.netlify/functions/create-checkout-session', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`
+          'Authorization': `Bearer ${session.access_token}`
         },
         body: JSON.stringify({ 
           priceId: plan === 'basic' ? STRIPE_CONFIG.priceBasic : STRIPE_CONFIG.pricePremium,
-          customerId: user.id // Add user ID to request
+          customerId: user.id
         })
       });
   
