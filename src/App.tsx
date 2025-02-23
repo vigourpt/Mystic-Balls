@@ -8,10 +8,12 @@ import LoginModal from './components/LoginModal';
 import PaymentModal from './components/PaymentModal';
 import ReadingSelector from './components/ReadingSelector';
 import ReadingForm from './components/ReadingForm';
-import LoadingSpinner from './components/LoadingSpinner';  // Add this import
+import LoadingSpinner from './components/LoadingSpinner';
 import { PricingPlan, ReadingType } from './types';
-import { checkProject, supabaseClient } from './lib/supabaseClient';
-import { createClient } from '@supabase/supabase-js';
+import { checkProject } from './lib/supabaseClient';
+// Remove duplicate imports
+// import { createClient } from '@supabase/supabase-js';
+// import { supabaseClient } from './lib/supabaseClient';
 import { UserProfile } from './services/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
