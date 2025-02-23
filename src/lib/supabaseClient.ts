@@ -41,12 +41,35 @@ export const checkHealth = async () => {
 export const checkProject = async () => {
   try {
     console.log('Starting project check...', { url: supabaseUrl });
+    
+    // Wait for auth to initialize first
+    console.log('Waiting for auth...');
+    await supabaseClient.auth.getSession();
+    console.log('Auth initialized');
+
+    // Try direct REST call first
+    console.log('Testing REST connection...');
+    const response = await fetch(`${supabaseUrl}/rest/v1/user_profiles?select=count`, {
+      method: 'GET',
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    console.log('REST response:', {
+      status: response.status,
+      ok: response.ok,
+      headers: Object.fromEntries(response.headers)
+    });
+
+    // If REST call succeeds, try Supabase client
+    console.log('Testing Supabase client...');
     const timeoutPromise = new Promise<never>((_, reject) => 
       setTimeout(() => reject(new Error('Project check timeout after 15s')), 15000)
     );
     
-    // Try a simpler query first
-    console.log('Testing connection...');
     const queryPromise = supabaseClient
       .from('user_profiles')
       .select('count')
@@ -57,17 +80,21 @@ export const checkProject = async () => {
     console.log('Raw query result:', result);
     
     const { data, error } = result as { data: any; error: any };
-    console.log('Project check response:', { data, error });
-    
     if (error) {
-      console.error('Project check error:', error);
       throw error;
     }
     
     console.log('Connected to project URL:', supabaseUrl);
     return data;
-  } catch (error) {
-    console.error('Failed to connect to Supabase:', { error, url: supabaseUrl });
+  } catch (err: unknown) {
+    const error = err as Error;
+    console.error('Failed to connect to Supabase:', { 
+      error, 
+      url: supabaseUrl,
+      errorName: error?.name || 'Unknown',
+      errorMessage: error?.message || 'Unknown error',
+      errorStack: error?.stack || 'No stack trace'
+    });
     throw error;
   }
 };
