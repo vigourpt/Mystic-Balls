@@ -33,6 +33,22 @@ if (typeof window !== 'undefined') {
   (window as any).supabase = supabaseClient;
 }
 
+// Add a health check function
+export const checkHealth = async () => {
+  try {
+    const response = await fetch(`${supabaseUrl}/rest/v1/health`, {
+      headers: {
+        'apikey': supabaseAnonKey,
+        'Authorization': `Bearer ${supabaseAnonKey}`
+      }
+    });
+    return await response.json();
+  } catch (error) {
+    console.error('Health check failed:', error);
+    throw error;
+  }
+};
+
 export const checkProject = async () => {
   try {
     const { data, error } = await supabaseClient.from('user_profiles').select('*');
