@@ -4,36 +4,9 @@ import { PRODUCTION_URL } from '../config/constants';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
 const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
 
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storage: localStorage,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce',
-    storageKey: 'mystic-balls-auth'
-  },
-  global: {
-    headers: {
-      'x-site-url': siteUrl,
-      'apikey': supabaseAnonKey  // Add this line
-    }
-  }
-});
-
-// Add this line to expose supabase client to window for debugging
-if (typeof window !== 'undefined') {
-  (window as any).supabase = supabaseClient;
-}
-
-// Add a health check function
+// Move functions before they're used
 export const checkHealth = async () => {
   try {
     const response = await fetch(`${supabaseUrl}/rest/v1/health`, {
@@ -65,6 +38,33 @@ export const checkProject = async () => {
     throw error;
   }
 };
+
+// Then create the client and expose to window
+export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    storage: localStorage,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    flowType: 'pkce',
+    storageKey: 'mystic-balls-auth'
+  },
+  global: {
+    headers: {
+      'x-site-url': siteUrl,
+      'apikey': supabaseAnonKey
+    }
+  }
+});
+
+// Add this line to expose supabase client to window for debugging
+if (typeof window !== 'undefined') {
+  (window as any).supabase = {
+    ...supabaseClient,
+    checkHealth,
+    checkProject
+  };
+}
 
 export const decrementFreeReadings = async (userId: string): Promise<void> => {
   // First get the current count
