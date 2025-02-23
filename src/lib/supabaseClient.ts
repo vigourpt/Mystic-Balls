@@ -19,10 +19,18 @@ export const checkHealth = async () => {
         'Accept': 'application/json'
       }
     });
+    const responseText = await response.text();
+    console.log('Raw response:', responseText);
+    
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    console.log('Health check response:', { status: response.status, ok: response.ok });
+    
+    console.log('Health check response:', { 
+      status: response.status, 
+      ok: response.ok,
+      headers: Object.fromEntries(response.headers)
+    });
     return { status: response.status, ok: response.ok };
   } catch (error) {
     console.error('Health check failed:', error);
