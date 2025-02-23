@@ -40,8 +40,15 @@ export const checkHealth = async () => {
 
 export const checkProject = async () => {
   try {
+    console.log('Starting project check...');
     const { data, error } = await supabaseClient.from('user_profiles').select('*');
-    if (error) throw error;
+    console.log('Project check response:', { data, error });
+    
+    if (error) {
+      console.error('Project check error:', error);
+      throw error;
+    }
+    
     console.log('Connected to project URL:', supabaseUrl);
     return data;
   } catch (error) {
