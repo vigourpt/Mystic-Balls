@@ -27,6 +27,11 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
   }
 });
 
+// Add this line to expose supabase client to window for debugging
+if (typeof window !== 'undefined') {
+  (window as any).supabase = supabaseClient;
+}
+
 export const checkProject = async () => {
   try {
     const { data, error } = await supabaseClient.from('user_profiles').select('*');
