@@ -23,10 +23,13 @@ import FAQ from './components/FAQ';
 import { useUsageTracking } from './hooks/useUsageTracking';
 import { fireConfetti } from './utils/confetti';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Remove these duplicate Supabase initializations
+// const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+// const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Use the existing supabaseClient instead
+import { supabaseClient } from './lib/supabaseClient';
 
 const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -62,7 +65,7 @@ const App: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${session.data.session?.access_token}`,
         },
         body: JSON.stringify({
           readingType: selectedReadingType?.id,
