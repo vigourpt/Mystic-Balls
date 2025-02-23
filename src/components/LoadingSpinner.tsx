@@ -34,7 +34,7 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div className={`flex flex-col items-center justify-center ${className}`}>
+    <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center ${className}`}>
       <div className={`${sizeClasses[size]} border-white border-b-transparent rounded-full animate-spin mb-4`}></div>
       {message && (
         <div className="text-white text-center">
