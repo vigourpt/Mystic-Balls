@@ -40,17 +40,22 @@ export const checkHealth = async () => {
 
 export const checkProject = async () => {
   try {
-    console.log('Starting project check...');
+    console.log('Starting project check...', { url: supabaseUrl });
     const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Project check timeout after 5s')), 5000)
+      setTimeout(() => reject(new Error('Project check timeout after 15s')), 15000)
     );
     
+    // Try a simpler query first
+    console.log('Testing connection...');
     const queryPromise = supabaseClient
       .from('user_profiles')
-      .select('id, email')
-      .limit(1);
+      .select('count')
+      .limit(1)
+      .single();
     
     const result = await Promise.race([queryPromise, timeoutPromise]);
+    console.log('Raw query result:', result);
+    
     const { data, error } = result as { data: any; error: any };
     console.log('Project check response:', { data, error });
     
@@ -62,7 +67,7 @@ export const checkProject = async () => {
     console.log('Connected to project URL:', supabaseUrl);
     return data;
   } catch (error) {
-    console.error('Failed to connect to Supabase:', error);
+    console.error('Failed to connect to Supabase:', { error, url: supabaseUrl });
     throw error;
   }
 };
