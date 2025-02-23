@@ -37,12 +37,17 @@ if (typeof window !== 'undefined') {
 export const checkHealth = async () => {
   try {
     const response = await fetch(`${supabaseUrl}/rest/v1/health`, {
+      method: 'GET',
       headers: {
         'apikey': supabaseAnonKey,
-        'Authorization': `Bearer ${supabaseAnonKey}`
+        'Authorization': `Bearer ${supabaseAnonKey}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
     });
-    return await response.json();
+    const data = await response.json();
+    console.log('Health check response:', data);
+    return data;
   } catch (error) {
     console.error('Health check failed:', error);
     throw error;
