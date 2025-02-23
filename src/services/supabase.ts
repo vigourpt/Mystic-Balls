@@ -36,13 +36,13 @@ import { Database } from '../types/supabase';
 type Tables = Database['public']['Tables'];
 export type UserProfile = Tables['user_profiles']['Row'];
 
-// Update all functions to use supabaseClient instead of supabase
 export const signInWithGoogle = async () => {
+  const siteUrl = window.location.origin;
   try {
     return await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: siteUrl,
+        redirectTo: `${siteUrl}/auth/callback`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent'

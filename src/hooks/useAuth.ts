@@ -11,7 +11,6 @@ export const useAuth = () => {
   useEffect(() => {
     let mounted = true;
     
-    // Replace all instances of supabase with supabaseClient
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -36,7 +35,7 @@ export const useAuth = () => {
       if (!mounted) return;
       
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
         if (error) throw error;
         
         if (session?.user) {
@@ -58,13 +57,14 @@ export const useAuth = () => {
     };
   }, []);
 
+  // Update all auth methods to use supabaseClient
   const signUp = async (email: string, password: string) => {
     try {
       setLoading(true);
       setError(null);
       setConfirmEmail(false);
 
-      const { data, error } = await supabase.auth.signUp({
+      const { data, error } = await supabaseClient.auth.signUp({
         email: email.trim(),
         password: password,
         options: {
@@ -99,7 +99,7 @@ export const useAuth = () => {
       setError(null);
       setConfirmEmail(false);
 
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
         email: email.trim(),
         password: password,
       });
@@ -125,7 +125,7 @@ export const useAuth = () => {
   const signOut = async () => {
     try {
       setLoading(true);
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabaseClient.auth.signOut();
       if (error) throw error;
       
       // Reset state
