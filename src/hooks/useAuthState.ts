@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
-import type { User } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
+import { UserProfile } from '../services/supabase';
 
-interface AuthState {
+export interface AuthState {
   user: User | null;
   loading: boolean;
-  error: Error | null;
+  profiles: UserProfile[] | null;
 }
 
 export const useAuthState = (): AuthState => {
