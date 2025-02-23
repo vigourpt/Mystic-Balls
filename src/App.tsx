@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useAuthState } from './hooks/useAuthState';
 import { READING_TYPES } from './data/readingTypes';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import LoginModal from './components/LoginModal';
-import PaymentModal from './components/PaymentModal';
+// Remove unused import
 import ReadingSelector from './components/ReadingSelector';
 import ReadingForm from './components/ReadingForm';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -33,7 +32,15 @@ import { fireConfetti } from './utils/confetti';
 // Use the existing supabaseClient instead
 import { supabaseClient } from './lib/supabaseClient';
 
-const App: React.FC = () => {
+import { Suspense, lazy } from 'react';
+
+// Lazy load components
+const LoginModal = lazy(() => import('./components/LoginModal'));
+const UpgradeModal = lazy(() => import('./components/UpgradeModal'));
+// Remove unused PaymentSuccess import since it's not being used in the component
+
+// Add FC type to App component
+const App = (): JSX.Element => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode ? JSON.parse(savedMode) : true;
@@ -203,6 +210,8 @@ const App: React.FC = () => {
     );
   }
 
+  // Remove unused handleSubscribe if not needed
+  
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
       isDarkMode 
@@ -293,19 +302,22 @@ const App: React.FC = () => {
         setCurrentPage={setCurrentPage}
       />
 
-      <LoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-
-      <PaymentModal
-        isOpen={showPaymentModal}
-        onClose={() => setShowPaymentModal(false)}
-        isDarkMode={isDarkMode}
-        user={user}
-        onSubscribe={handleSubscribe}
-      />
-
+      <Suspense fallback={<LoadingSpinner />}>
+        {showLoginModal && (
+          <LoginModal
+            isOpen={showLoginModal}
+            onClose={() => setShowLoginModal(false)}
+          />
+        )}
+        {showPaymentModal && (
+          <UpgradeModal
+            isOpen={showPaymentModal}
+            onClose={() => setShowPaymentModal(false)}
+            onSubscribe={handleSubscribe}
+          />
+        )}
+      </Suspense>
+      
       {currentStep && (
         <TourGuide
           currentStep={currentStep}

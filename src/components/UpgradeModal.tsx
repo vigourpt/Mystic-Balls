@@ -1,64 +1,30 @@
 import React, { useState } from 'react';
 import { X, Check } from 'lucide-react';
-import { loadStripe } from '@stripe/stripe-js';
 import { useAuthState } from '../hooks/useAuthState';
 import { formatPrice } from '../utils/currency';
-import { supabaseClient } from '../lib/supabaseClient';  // Fix import
-import { STRIPE_CONFIG } from '../config/stripe';
+import { PricingPlan } from '../types';
+import { PAYMENT_PLANS } from '../config/plans';  // Import payment plans
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
+  onSubscribe: (plan: PricingPlan) => Promise<void>;
 }
 
-const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
+const UpgradeModal: React.FC<Props> = ({ isOpen, onClose, onSubscribe }) => {
   const { user } = useAuthState();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
   if (!isOpen) return null;
 
-  const handlePlanSelection = async (plan: 'basic' | 'premium') => {
-    if (isLoading || !user) return; // Add user check
+  const handlePlanSelection = async (plan: PricingPlan) => {
+    if (isLoading || !user) return;
     
     try {
       setIsLoading(true);
       setError(null);
-      
-      // Get the current session
-      const { data: { session } } = await supabaseClient.auth.getSession();
-      if (!session) throw new Error('No active session');
-
-      const response = await fetch('/.netlify/functions/create-checkout-session', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`
-        },
-        body: JSON.stringify({ 
-          priceId: plan === 'basic' ? STRIPE_CONFIG.priceBasic : STRIPE_CONFIG.pricePremium,
-          customerId: user.id
-        })
-      });
-  
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
-      }
-  
-      // Use the URL from the response if available, otherwise fall back to redirect with sessionId
-      if (data.url) {
-        window.location.href = data.url;
-      } else if (data.sessionId) {
-        const stripe = await loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
-        if (!stripe) {
-          throw new Error('Failed to initialize Stripe');
-        }
-        await stripe.redirectToCheckout({ sessionId: data.sessionId });
-      } else {
-        throw new Error('No checkout URL or session ID returned');
-      }
+      await onSubscribe(plan);
     } catch (error) {
       console.error('Error details:', error);
       setError(error instanceof Error ? error.message : 'Failed to process payment');
@@ -66,6 +32,9 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
       setIsLoading(false);
     }
   };
+
+  const basicPlan = PAYMENT_PLANS.find(plan => plan.id === 'basic')!;
+  const premiumPlan = PAYMENT_PLANS.find(plan => plan.id === 'premium')!;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -86,27 +55,21 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
 
         <div className="grid md:grid-cols-2 gap-8">
           <div className="bg-indigo-900/50 p-6 rounded-xl">
-            <h3 className="text-2xl font-bold text-white mb-2">Basic</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">{basicPlan.name}</h3>
             <div className="text-3xl font-bold text-white mb-4">
-              {formatPrice(9.99)}<span className="text-lg font-normal text-indigo-200">/month</span>
+              {formatPrice(basicPlan.price)}<span className="text-lg font-normal text-indigo-200">/month</span>
             </div>
-            <p className="text-indigo-200 mb-6">Perfect for occasional guidance</p>
+            <p className="text-indigo-200 mb-6">{basicPlan.description}</p>
             <ul className="space-y-4 mb-8">
-              <li className="flex items-center text-indigo-200">
-                <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                50 readings per month
-              </li>
-              <li className="flex items-center text-indigo-200">
-                <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                All reading types
-              </li>
-              <li className="flex items-center text-indigo-200">
-                <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                Basic support
-              </li>
+              {basicPlan.features.map((feature, index) => (
+                <li key={index} className="flex items-center text-indigo-200">
+                  <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
+                  {feature}
+                </li>
+              ))}
             </ul>
             <button
-              onClick={() => handlePlanSelection('basic')}
+              onClick={() => handlePlanSelection(basicPlan)}
               disabled={isLoading}
               className={`w-full ${
                 isLoading 
@@ -114,36 +77,26 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   : 'bg-fuchsia-600 hover:bg-fuchsia-500'
               } text-white font-semibold py-2 px-4 rounded-lg transition-colors`}
             >
-              {isLoading ? 'Processing...' : 'Choose Basic'}
+              {isLoading ? 'Processing...' : `Choose ${basicPlan.name}`}
             </button>
           </div>
 
           <div className="bg-indigo-900/50 p-6 rounded-xl">
-            <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
+            <h3 className="text-2xl font-bold text-white mb-2">{premiumPlan.name}</h3>
             <div className="text-3xl font-bold text-white mb-4">
-              {formatPrice(19.99)}<span className="text-lg font-normal text-indigo-200">/month</span>
+              {formatPrice(premiumPlan.price)}<span className="text-lg font-normal text-indigo-200">/month</span>
             </div>
-            <p className="text-indigo-200 mb-6">For those seeking regular insights</p>
+            <p className="text-indigo-200 mb-6">{premiumPlan.description}</p>
             <ul className="space-y-4 mb-8">
-              <li className="flex items-center text-indigo-200">
-                <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                Unlimited readings
-              </li>
-              <li className="flex items-center text-indigo-200">
-                <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                Priority support
-              </li>
-              <li className="flex items-center text-indigo-200">
-                <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                Detailed interpretations
-              </li>
-              <li className="flex items-center text-indigo-200">
-                <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
-                Personal reading history
-              </li>
+              {premiumPlan.features.map((feature, index) => (
+                <li key={index} className="flex items-center text-indigo-200">
+                  <Check className="w-5 h-5 mr-2 text-fuchsia-400" />
+                  {feature}
+                </li>
+              ))}
             </ul>
             <button
-              onClick={() => handlePlanSelection('premium')}
+              onClick={() => handlePlanSelection(premiumPlan)}
               disabled={isLoading}
               className={`w-full ${
                 isLoading 
@@ -151,7 +104,7 @@ const UpgradeModal: React.FC<Props> = ({ isOpen, onClose }) => {
                   : 'bg-fuchsia-600 hover:bg-fuchsia-500'
               } text-white font-semibold py-2 px-4 rounded-lg transition-colors`}
             >
-              {isLoading ? 'Processing...' : 'Choose Premium'}
+              {isLoading ? 'Processing...' : `Choose ${premiumPlan.name}`}
             </button>
           </div>
         </div>
