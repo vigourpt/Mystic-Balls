@@ -1,39 +1,13 @@
-import { createClient } from '@supabase/supabase-js';
+// Since createClient is used in supabaseClient.ts, we can remove this unused import
 import { Database } from '../types/supabase';
 import { PRODUCTION_URL } from '../config/constants';
-
-// Get environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Validate environment variables
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-// Get the site URL based on environment
-const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
-
-// Create Supabase client with minimal config
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storage: localStorage,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce'
-  },
-  global: {
-    headers: {
-      'x-site-url': siteUrl
-    }
-  }
-});
-
 import { supabaseClient } from '../lib/supabaseClient';
 
 type Tables = Database['public']['Tables'];
 export type UserProfile = Tables['user_profiles']['Row'];
+
+// Get the site URL based on environment
+const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
 
 export const signInWithGoogle = async () => {
   try {
@@ -53,6 +27,7 @@ export const signInWithGoogle = async () => {
   }
 };
 
+// Update all other functions to use supabaseClient instead of supabase
 export const signUpWithEmail = async (email: string, password: string) => {
   if (!email || !password) {
     throw new Error('Email and password are required');
@@ -63,7 +38,7 @@ export const signUpWithEmail = async (email: string, password: string) => {
   }
 
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseClient.auth.signUp({
       email: email.trim(),
       password: password,
       options: {
@@ -101,7 +76,7 @@ export const signInWithEmail = async (email: string, password: string) => {
   }
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
       email: email.trim(),
       password: password
     });
@@ -132,7 +107,7 @@ export const createUserProfile = async (userId: string, email: string, displayNa
     updated_at: new Date().toISOString()
   };
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from('user_profiles')
     .insert([profile])
     .select()
@@ -149,7 +124,7 @@ export const createUserProfile = async (userId: string, email: string, displayNa
 export const getUserProfile = async (userId: string): Promise<UserProfile | null> => {
   try {
     // First check if profile exists
-    const { data: existingProfile, error: fetchError } = await supabase
+    const { data: existingProfile, error: fetchError } = await supabaseClient
       .from('user_profiles')
       .select()
       .eq('id', userId)
@@ -164,7 +139,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
     }
 
     // If no profile exists, create one with retry logic
-    const { data: user } = await supabase.auth.getUser();
+    const { data: user } = await supabaseClient.auth.getUser();
     if (!user.user) return null;
 
     try {
@@ -175,8 +150,7 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
       );
       return newProfile;
     } catch (error) {
-      // If creation fails, try fetching one more time
-      const { data: retryProfile } = await supabase
+      const { data: retryProfile } = await supabaseClient
         .from('user_profiles')
         .select()
         .eq('id', userId)
@@ -192,8 +166,8 @@ export const getUserProfile = async (userId: string): Promise<UserProfile | null
 
 // Fix the increment_reading_count RPC call
 export const incrementReadingCount = async (userId: string): Promise<void> => {
-  const { error } = await supabase.rpc('increment_reading_count', {
-    user_id: userId  // Changed from p_id to user_id to match the function parameter
+  const { error } = await supabaseClient.rpc('increment_reading_count', {
+    user_id: userId
   });
 
   if (error) {
@@ -205,7 +179,7 @@ export const incrementReadingCount = async (userId: string): Promise<void> => {
 // Fix the decrement free readings function
 export const decrementFreeReadings = async (userId: string): Promise<void> => {
   // First get the current count
-  const { data: profile } = await supabase
+  const { data: profile } = await supabaseClient
     .from('user_profiles')
     .select('free_readings_remaining')
     .eq('id', userId)
@@ -215,7 +189,7 @@ export const decrementFreeReadings = async (userId: string): Promise<void> => {
     throw new Error('No free readings remaining');
   }
 
-  const { error } = await supabase
+  const { error } = await supabaseClient
     .from('user_profiles')
     .update({
       free_readings_remaining: profile.free_readings_remaining - 1,
@@ -231,8 +205,7 @@ export const decrementFreeReadings = async (userId: string): Promise<void> => {
 
 export const clearAllAuthState = async () => {
   try {
-    // Clear Supabase session
-    await supabase.auth.signOut();
+    await supabaseClient.auth.signOut();
     
     // Clear all storage
     localStorage.clear();
