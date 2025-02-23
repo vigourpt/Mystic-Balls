@@ -4,9 +4,6 @@
   environment = { NODE_VERSION = "18" }
 
 [build.environment]
-  # Remove these from netlify.toml - they should be set in Netlify UI
-  # VITE_SUPABASE_URL = ""
-  # VITE_SUPABASE_ANON_KEY = ""
   NODE_VERSION = "18.20.6"
 
 [functions]
