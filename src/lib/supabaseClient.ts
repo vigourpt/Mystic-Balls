@@ -42,9 +42,14 @@ export const checkProject = async () => {
   try {
     console.log('Starting project check...', { url: supabaseUrl });
     
-    // Wait for auth to initialize first
+    // Wait for auth with timeout
     console.log('Waiting for auth...');
-    await supabaseClient.auth.getSession();
+    const authTimeoutPromise = new Promise<never>((_, reject) => 
+      setTimeout(() => reject(new Error('Auth initialization timeout after 5s')), 5000)
+    );
+    
+    const authPromise = supabaseClient.auth.getSession();
+    await Promise.race([authPromise, authTimeoutPromise]);
     console.log('Auth initialized');
 
     // Try direct REST call first
@@ -58,11 +63,17 @@ export const checkProject = async () => {
       }
     });
 
+    const responseText = await response.text();
     console.log('REST response:', {
       status: response.status,
       ok: response.ok,
-      headers: Object.fromEntries(response.headers)
+      headers: Object.fromEntries(response.headers),
+      body: responseText
     });
+
+    if (!response.ok) {
+      throw new Error(`REST call failed: ${response.status} - ${responseText}`);
+    }
 
     // If REST call succeeds, try Supabase client
     console.log('Testing Supabase client...');
