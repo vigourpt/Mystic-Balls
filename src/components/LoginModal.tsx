@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { FC } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { signInWithGoogle, supabase } from '../services/supabase';
+import { signInWithGoogle } from '../services/supabase';
+import { supabaseClient } from '../lib/supabaseClient';  // Add this import
 
 interface Props {
   isOpen: boolean;
@@ -89,9 +90,10 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
   };
 
   // Close modal if user is authenticated
+  // Update the checkUser function to use supabaseClient
   React.useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await supabaseClient.auth.getUser();
       // Only close if we have a successful auth AND no errors
       if (!isLoading && !error && !confirmEmail && user) {
         onClose();

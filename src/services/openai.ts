@@ -1,75 +1,85 @@
-import { ReadingTypeId, ReadingType } from '../types';
+import OpenAI from 'openai';
 
-// Validate required fields before making the request
-const validateRequiredFields = (readingType: ReadingTypeId, userInput: Record<string, string>) => {
-  const requiredFields: Record<ReadingTypeId, string[]> = {
-    'tarot': ['question', 'spread'],
-    'numerology': ['birthdate', 'fullname'],
-    'astrology': ['birthdate', 'birthplace'],
-    'oracle': ['question', 'deck'],
-    'runes': ['question', 'spread'],
-    'iching': ['question'],
-    'angelnumbers': ['name', 'number'],  // Fixed field names
-    'horoscope': ['zodiac'],
-    'dreamanalysis': ['dream'],  // Changed to match the field name in readingTypes.ts
-    'magic8ball': ['question'],
-    'aura': ['feelings'],
-    'pastlife': ['name', 'recurringExperiences', 'fearsAndAttractions', 'naturalTalents']  // Fixed field names
-  };
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+  defaultHeaders: { 'OpenAI-Project-Id': process.env.OPENAI_PROJECT_ID }
+});
 
-  const missing = requiredFields[readingType]?.filter(field => !userInput[field]);
-  if (missing?.length) {
-    throw new Error(`Missing required fields for ${readingType} reading: ${missing.join(', ')}`);
-  }
-};
-
-export const getReading = async (
-  readingType: ReadingType,
-  userInput: Record<string, string>
-): Promise<string> => {
+const getReading = async (prompt: string) => {
   try {
-    // Validate reading type and required fields
-    if (!readingType || typeof readingType !== 'object' || !readingType.id) {
-      throw new Error(`Invalid reading type: ${JSON.stringify(readingType)}`);
-    }
-    validateRequiredFields(readingType.id as ReadingTypeId, userInput);
+    const completion = await openai.chat.completions.create({
+      model: process.env.NODE_ENV === 'production' ? "gpt-4" : "gpt-3.5-turbo", // Fix typo from "gpt-4o"
+      messages: [
+        { role: "system", content: `You are an experienced tarot reader with deep knowledge of the 78-card deck. Provide:
+### Cards Drawn
+[List the cards intuitively selected]
 
-    console.log('Processing reading type:', readingType, 'with input:', userInput);
-    
-    // Get the access token from local storage
-    const accessToken = localStorage.getItem('sb-access-token');
+### Individual Interpretations
+[Analyze each card's meaning]
 
-    if (!accessToken) {
-      throw new Error('Missing access token');
-    }
+### Cards Interaction
+[Explain how the cards relate]
 
-    const response = await fetch('/.netlify/functions/getReading', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}` // Add the Authorization header
-      },
-      body: JSON.stringify({
-        readingType: readingType.id,
-        userInput
-      })
+### Overall Message
+[Provide guidance and insights]
+
+Use clear, compassionate language and maintain proper markdown formatting.` },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 1000
     });
 
-    const data = await response.json();
-    
-    if (!response.ok) {
-      console.error('API error:', data);
-      throw new Error(data.error || 'Reading generation failed');
+    if (completion.choices && completion.choices[0] && completion.choices[0].message && completion.choices[0].message.content) {
+      return completion.choices[0].message.content.trim();
+    } else {
+      return 'No response received';
     }
-
-    if (!data.reading) {
-      console.error('No reading in response:', data);
-      throw new Error('No reading generated');
-    }
-
-    return data.reading;
-  } catch (error: any) {
-    console.error('Error in getReading:', error);
-    throw error;
+  } catch (error: unknown) {
+    console.error('OpenAI Error:', error);
+    return `Reading generation failed: ${error}`;
   }
 };
+
+const getCompletion = async (prompt: string, systemPrompt: string) => {
+  try {
+    const completion = await openai.chat.completions.create({
+      model: process.env.NODE_ENV === 'production' ? "gpt-4" : "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: systemPrompt },
+        { role: "user", content: prompt }
+      ],
+      temperature: 0.7,
+      max_tokens: 800,
+    });
+
+    if (completion.choices && completion.choices[0] && completion.choices[0].message && completion.choices[0].message.content) {
+      return completion.choices[0].message.content.trim();
+    } else {
+      return 'No response received';
+    }
+  } catch (error: unknown) {
+    console.error('OpenAI Error:', error);
+    return `Completion generation failed: ${error}`;
+  }
+};
+
+const getEmbeddings = async (input: string | string[]) => {
+  try {
+    const embeddings = await openai.embeddings.create({
+      model: "text-embedding-ada-002",
+      input
+    });
+
+    if (embeddings.data && embeddings.data.length > 0) {
+      return embeddings.data.map(item => item.embedding);
+    } else {
+      return [];
+    }
+  } catch (error: unknown) {
+    console.error("Error getting embeddings:", error);
+    return [];
+  }
+};
+
+export { getReading, getCompletion, getEmbeddings };

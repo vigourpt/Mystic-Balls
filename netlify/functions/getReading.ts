@@ -2,6 +2,7 @@ import { Handler } from '@netlify/functions';
 import OpenAI from 'openai';
 import { rateLimiter } from './utils/rateLimiter';
 import { createClient } from '@supabase/supabase-js';
+import { supabaseClient } from '../../src/lib/supabaseClient';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -323,7 +324,7 @@ const handler: Handler = async (event, context) => {
       }
 
       // Get user profile
-      const { data: { user }, error: authError } = await supabase.auth.getUser(
+      const { data: { user }, error: authError } = await supabaseClient.auth.getUser(
         authHeader.replace('Bearer ', '')
       );
 
@@ -333,7 +334,7 @@ const handler: Handler = async (event, context) => {
       }
 
       // Get user profile with readings count
-      const { data: profile, error: profileError } = await supabase
+      const { data: profile, error: profileError } = await supabaseClient
         .from('user_profiles')
         .select('*')
         .eq('id', user.id)
@@ -354,7 +355,8 @@ const handler: Handler = async (event, context) => {
           statusCode: 402,
           headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
+            'Retry-After': '60'
           },
           body: JSON.stringify({
             error: 'Free trial ended',
@@ -476,7 +478,7 @@ Natural Talents: ${userInput.naturalTalents}`,
 
       // Update readings count for non-premium users
       if (!profile.is_premium) {
-        const { error: updateError } = await supabase
+        const { error: updateError } = await supabaseClient
           .from('user_profiles')
           .update({
             readings_count: currentReadingsCount + 1,
@@ -505,7 +507,7 @@ Natural Talents: ${userInput.naturalTalents}`,
           responseBody.readingsRemaining = null;
       }
 
-      let statusCode = 200;
+      const statusCode = 200;
       const headers = {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
@@ -521,21 +523,26 @@ Natural Talents: ${userInput.naturalTalents}`,
       let errorMessage = 'Reading generation failed';
       let statusCode = 500;
       let retryAfter: string | undefined = undefined;
-      if (error instanceof Error) { // Type guard to check if error is an instance of Error
+      if (error instanceof Error) {
         console.error('OpenAI Error:', {
           message: error.message,
-          code: (error as Record<string, any>).code,
-          status: (error as Record<string, any>).status,
+          ...(error as any).code ? {code: (error as any).code} : {},
+          ...(error as any).status ? {status: (error as any).status} : {},
           stack: error.stack
         });
 
         if (error.message.includes('API key')) {
           errorMessage = 'Invalid OpenAI API key';
-        } else if (error.message.includes('rate limit') || (error as any).status === 429) {
+        } else if (typeof (error as any).status === 'number' && (error as any).status === 429) {
           statusCode = 429;
           errorMessage = 'Too many requests - please try again later';
           retryAfter = '60';
-        } else {
+        } else if (error.message.includes('rate limit')) {
+          statusCode = 429;
+          errorMessage = 'Too many requests - please try again later';
+          retryAfter = '60';
+        }
+         else {
           errorMessage = error.message;
         }
       }
@@ -557,7 +564,7 @@ Natural Talents: ${userInput.naturalTalents}`,
         body: JSON.stringify(responseBody)
       };
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Outer error:', error);
     return {
       statusCode: 500,
