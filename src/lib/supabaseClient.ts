@@ -42,17 +42,7 @@ export const checkProject = async () => {
   try {
     console.log('Starting project check...', { url: supabaseUrl });
     
-    // Wait for auth with timeout
-    console.log('Waiting for auth...');
-    const authTimeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Auth initialization timeout after 5s')), 5000)
-    );
-    
-    const authPromise = supabaseClient.auth.getSession();
-    await Promise.race([authPromise, authTimeoutPromise]);
-    console.log('Auth initialized');
-
-    // Try direct REST call first
+    // Try direct REST call first without waiting for auth
     console.log('Testing REST connection...');
     const response = await fetch(`${supabaseUrl}/rest/v1/user_profiles?select=count`, {
       method: 'GET',
@@ -75,22 +65,14 @@ export const checkProject = async () => {
       throw new Error(`REST call failed: ${response.status} - ${responseText}`);
     }
 
-    // If REST call succeeds, try Supabase client
+    // If REST call succeeds, try a simple Supabase query
     console.log('Testing Supabase client...');
-    const timeoutPromise = new Promise<never>((_, reject) => 
-      setTimeout(() => reject(new Error('Project check timeout after 15s')), 15000)
-    );
-    
-    const queryPromise = supabaseClient
+    const { data, error } = await supabaseClient
       .from('user_profiles')
       .select('count')
       .limit(1)
       .single();
-    
-    const result = await Promise.race([queryPromise, timeoutPromise]);
-    console.log('Raw query result:', result);
-    
-    const { data, error } = result as { data: any; error: any };
+
     if (error) {
       throw error;
     }
