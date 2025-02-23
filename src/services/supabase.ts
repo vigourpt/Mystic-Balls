@@ -31,13 +31,11 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
 });
 
 import { supabaseClient } from '../lib/supabaseClient';
-import { Database } from '../types/supabase';
 
 type Tables = Database['public']['Tables'];
 export type UserProfile = Tables['user_profiles']['Row'];
 
 export const signInWithGoogle = async () => {
-  const siteUrl = window.location.origin;
   try {
     return await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
