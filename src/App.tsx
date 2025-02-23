@@ -8,6 +8,7 @@ import LoginModal from './components/LoginModal';
 import PaymentModal from './components/PaymentModal';
 import ReadingSelector from './components/ReadingSelector';
 import ReadingForm from './components/ReadingForm';
+import LoadingSpinner from './components/LoadingSpinner';  // Add this import
 import { PricingPlan, ReadingType } from './types';
 import { checkProject, supabaseClient } from './lib/supabaseClient';
 import { createClient } from '@supabase/supabase-js';
@@ -182,9 +183,14 @@ const App: React.FC = () => {
   // Remove the direct fetchProfiles() call
 
   if (authLoading) {
+    console.log('Auth is still loading...');
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-purple-500"></div>
+        <LoadingSpinner 
+          size="large"
+          message="Initializing application..."
+          showSlowLoadingMessage={true}
+        />
       </div>
     );
   }
