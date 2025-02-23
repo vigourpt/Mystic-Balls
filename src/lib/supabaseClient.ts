@@ -22,7 +22,8 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
   },
   global: {
     headers: {
-      'x-site-url': siteUrl
+      'x-site-url': siteUrl,
+      'apikey': supabaseAnonKey  // Add this line
     }
   }
 });
