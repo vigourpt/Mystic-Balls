@@ -98,10 +98,10 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
     persistSession: false,
     storage: localStorage,
     autoRefreshToken: false,
-    detectSessionInUrl: false,
-    flowType: 'implicit',
+    detectSessionInUrl: true,    // Change to true
+    flowType: 'pkce',           // Change back to pkce
     storageKey: 'mystic-balls-auth',
-    redirectTo: `${siteUrl}/auth/callback`  // Add this line
+    redirectTo: `${siteUrl}/auth/callback`
   },
   global: {
     headers: {
