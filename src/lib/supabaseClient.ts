@@ -95,11 +95,11 @@ export const checkProject = async () => {
 // Then create the client and expose to window
 export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: true,
+    persistSession: false,     // Change to false
     storage: localStorage,
-    autoRefreshToken: true,
-    detectSessionInUrl: false,  // Change this to false
-    flowType: 'implicit',       // Change to implicit flow
+    autoRefreshToken: false,   // Change to false
+    detectSessionInUrl: false,
+    flowType: 'implicit',
     storageKey: 'mystic-balls-auth'
   },
   global: {
@@ -108,8 +108,10 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
       'apikey': supabaseAnonKey
     }
   },
-  db: {
-    schema: 'public'
+  realtime: {
+    params: {
+      eventsPerSecond: 1
+    }
   }
 });
 
