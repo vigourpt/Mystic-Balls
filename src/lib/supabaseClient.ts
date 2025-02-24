@@ -98,8 +98,8 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
     persistSession: true,
     storage: localStorage,
     autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce',
+    detectSessionInUrl: false,  // Change this to false
+    flowType: 'implicit',       // Change to implicit flow
     storageKey: 'mystic-balls-auth'
   },
   global: {
@@ -107,6 +107,9 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
       'x-site-url': siteUrl,
       'apikey': supabaseAnonKey
     }
+  },
+  db: {
+    schema: 'public'
   }
 });
 
