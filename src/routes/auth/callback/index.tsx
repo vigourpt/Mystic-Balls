@@ -6,13 +6,19 @@ export default function AuthCallback() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Handle the auth callback
-    supabaseClient.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN') {
-        // Redirect to home page or dashboard after successful sign in
+    // Handle the auth callback immediately
+    const handleCallback = async () => {
+      try {
+        const { error } = await supabaseClient.auth.getSession();
+        if (error) throw error;
+        navigate('/');
+      } catch (error) {
+        console.error('Auth callback error:', error);
         navigate('/');
       }
-    });
+    };
+
+    handleCallback();
   }, [navigate]);
 
   return (
