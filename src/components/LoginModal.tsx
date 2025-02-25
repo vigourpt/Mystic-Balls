@@ -61,9 +61,7 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
         setError(authErrorMessage);
       }
     } finally {
-      } finally {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
   };
 
