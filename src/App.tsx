@@ -8,7 +8,7 @@ import ReadingSelector from './components/ReadingSelector';
 import LoadingSpinner from './components/LoadingSpinner';
 import { PricingPlan, ReadingType } from './types';
 import { checkProject } from './lib/supabaseClient';
-import { supabaseClient } from '../lib/supabaseClient';
+import { supabaseClient } from './lib/supabaseClient';
 import { UserProfile } from './services/supabase';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
