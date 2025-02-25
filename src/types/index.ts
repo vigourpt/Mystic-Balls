@@ -57,7 +57,7 @@ export interface ReadingField {
 
 export interface ReadingType {
   id: ReadingTypeId;
-  name: string;
+  title: string;
   description: string;
   icon: LucideIcon;
   fields: ReadingField[];
