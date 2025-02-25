@@ -61,7 +61,9 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
         setError(authErrorMessage);
       }
     } finally {
-      setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -93,13 +95,21 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
   // Update the checkUser function to use supabaseClient
   React.useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      // Only close if we have a successful auth AND no errors
-      if (!isLoading && !error && !confirmEmail && user) {
-        onClose();
+      try {
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+        if (authError) {
+          console.error('Error fetching user:', authError);
+          return;
+        }
+        // Only close if we have a successful auth AND no errors
+        if (!isLoading && !error && !confirmEmail && user) {
+          onClose();
+        }
+      } catch (err) {
+        console.error('Unexpected error during user check:', err);
       }
     };
-    
+
     checkUser();
   }, [isLoading, error, confirmEmail, onClose]);
 
