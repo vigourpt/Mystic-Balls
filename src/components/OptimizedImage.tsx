@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { optimizeImage } from '../utils/imageOptimizer';
 
 interface OptimizedImageProps {
   src: string;
@@ -33,22 +34,26 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
   }, []);
 
   // Generate srcset for different sizes
-  const generateSrcSet = () => {
-    const widths = [320, 640, 768, 1024, 1280, 1536];
-    const extension = isWebpSupported ? 'webp' : 'jpg';
-    
-    return widths
-      .map(width => {
-        const imgPath = src.replace(/\.(jpg|jpeg|png)$/, `.${extension}`);
-        return `${imgPath}?w=${width} ${width}w`;
-      })
-      .join(', ');
+  const generateSrcSet = async () => {
+    try {
+      const widths = [320, 640, 768, 1024, 1280, 1536];
+      const optimizedImages = await Promise.all(
+        widths.map(async (width) => {
+          const optimizedPath = await optimizeImage(src, '/optimized-images', [width]);
+          return `${optimizedPath} ${width}w`;
+        })
+      );
+      return optimizedImages.join(', ');
+    } catch (error) {
+      console.error('Error generating srcSet:', error);
+      return '';
+    }
   };
 
   return (
     <img
       src={imageSrc}
-      srcSet={generateSrcSet()}
+      srcSet={await generateSrcSet()}
       sizes={sizes}
       alt={alt}
       loading={loading}

@@ -6,6 +6,8 @@ interface LoadingSpinnerProps {
   message?: string;
   size?: 'small' | 'medium' | 'large';
   showSlowLoadingMessage?: boolean;
+  slowLoadingMessage?: string;
+  progress?: number;
   className?: string;
 }
 
@@ -13,6 +15,8 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
   message = 'Loading...', 
   size = 'medium',
   showSlowLoadingMessage = true,
+  slowLoadingMessage = 'This is taking longer than expected. Please wait a moment...',
+  progress,
   className = ''
 }) => {
   const [showMessage, setShowMessage] = useState(false);
@@ -34,19 +38,23 @@ const LoadingSpinner: FC<LoadingSpinnerProps> = ({
   };
 
   return (
-    <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center ${className}`}>
+    <div 
+      className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center ${className}`} 
+      role="status" 
+      aria-live="polite"
+    >
       <div className={`${sizeClasses[size]} border-white border-b-transparent rounded-full animate-spin mb-4`}></div>
-      {message && (
-        <div className="text-white text-center">
-          <p className="mb-2">{message}</p>
-          {showMessage && showSlowLoadingMessage && (
-            <p className="text-gray-400 text-sm">
-              This is taking longer than expected.<br />
-              Please wait a moment...
-            </p>
-          )}
-        </div>
-      )}
+      <div className="text-white text-center">
+        {message && <p className="mb-2">{message}</p>}
+        {progress !== undefined && (
+          <p className="text-gray-300 text-sm">{`Progress: ${progress}%`}</p>
+        )}
+        {showMessage && showSlowLoadingMessage && (
+          <p className="text-gray-400 text-sm">
+            {slowLoadingMessage}
+          </p>
+        )}
+      </div>
     </div>
   );
 };

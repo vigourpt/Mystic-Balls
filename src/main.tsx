@@ -1,8 +1,9 @@
 /** @jsxImportSource react */
-import { StrictMode } from 'react';
+import React, { StrictMode, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import AppRoutes from './routes';
 import './index.css';
+import LoadingSpinner from './components/LoadingSpinner'; // Assuming this component exists
 
 const rootElement = document.getElementById('root');
 
@@ -23,20 +24,45 @@ window.addEventListener('popstate', (event) => {
   isFirstLoad = false;
 });
 
-try {
-  root.render(
-    <StrictMode>
-      <AppRoutes />
-    </StrictMode>
-  );
-} catch (error) {
-  console.error('Error rendering the app:', error);
-  // Show error in the UI
-  rootElement.innerHTML = `
-    <div style="color: white; text-align: center; padding: 20px;">
-      <h1>Something went wrong</h1>
-      <p>Please try refreshing the page. If the problem persists, contact support.</p>
-      <pre style="color: red; margin-top: 20px;">${error instanceof Error ? error.message : 'Unknown error'}</pre>
-    </div>
-  `;
-}
+const AppInitializer = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      setIsLoading(true);
+      root.render(
+        process.env.NODE_ENV === 'production' ? (
+          <StrictMode>
+            <AppRoutes />
+          </StrictMode>
+        ) : (
+          <AppRoutes />
+        )
+      );
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Error rendering the app:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setIsLoading(false);
+    }
+  }, []);
+
+  if (isLoading) {
+    return <LoadingSpinner message="Initializing application..." />;
+  }
+
+  if (error) {
+    return (
+      <div style={{ color: 'white', textAlign: 'center', padding: '20px' }}>
+        <h1>Something went wrong</h1>
+        <p>Please try refreshing the page. If the problem persists, contact support.</p>
+        <pre style={{ color: 'red', marginTop: '20px' }}>{error}</pre>
+      </div>
+    );
+  }
+
+  return null;
+};
+
+root.render(<AppInitializer />);

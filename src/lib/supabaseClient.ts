@@ -8,9 +8,14 @@ const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
 
 // Move functions before they're used
 export const checkHealth = async () => {
+  const timeout = 5000; // 5 seconds timeout
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Health check timed out')), timeout)
+  );
+
   try {
     // Change to a simple status check endpoint
-    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+    const healthCheckPromise = fetch(`${supabaseUrl}/rest/v1/`, {
       method: 'GET',
       headers: {
         'apikey': supabaseAnonKey,
@@ -19,13 +24,15 @@ export const checkHealth = async () => {
         'Accept': 'application/json'
       }
     });
+
+    const response = await Promise.race([healthCheckPromise, timeoutPromise]);
     const responseText = await response.text();
     console.log('Raw response:', responseText);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     console.log('Health check response:', { 
       status: response.status, 
       ok: response.ok,
@@ -33,7 +40,11 @@ export const checkHealth = async () => {
     });
     return { status: response.status, ok: response.ok };
   } catch (error) {
-    console.error('Health check failed:', error);
+    console.error('Health check failed:', {
+      message: error.message,
+      stack: error.stack,
+      url: supabaseUrl
+    });
     throw error;
   }
 };
@@ -92,29 +103,40 @@ export const checkProject = async () => {
   }
 };
 
-// Then create the client and expose to window
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storage: localStorage,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce',           // Change back to pkce
-    storageKey: 'mystic-balls-auth',
-    redirectTo: `${siteUrl}/auth/callback?source=oauth`
-  },
-  global: {
-    headers: {
-      'x-site-url': siteUrl,
-      'apikey': supabaseAnonKey
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase initialization failed: Missing environment variables VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY.');
+  throw new Error('Supabase environment variables are not defined.');
+}
+
+let supabaseClient: ReturnType<typeof createClient>;
+
+try {
+  supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      storage: localStorage,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',           // Change back to pkce
+      storageKey: 'mystic-balls-auth',
+      redirectTo: `${siteUrl}/auth/callback?source=oauth`
+    },
+    global: {
+      headers: {
+        'x-site-url': siteUrl,
+        'apikey': supabaseAnonKey
+      }
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 1
+      }
     }
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 1
-    }
-  }
-});
+  });
+} catch (error) {
+  console.error('Error initializing Supabase client:', error);
+  throw error;
+}
 
 // Add this line to expose supabase client to window for debugging
 if (typeof window !== 'undefined') {
