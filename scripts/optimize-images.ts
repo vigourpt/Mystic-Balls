@@ -4,7 +4,7 @@ import path from 'path';
 import fs from 'fs/promises';
 
 const SIZES = [320, 640, 768, 1024, 1280, 1536];
-const FORMATS = ['webp', 'jpg'] as const;
+const FORMATS = ['webp'] as const;
 
 async function optimizeImages() {
   try {
@@ -26,11 +26,7 @@ async function optimizeImages() {
 
           const pipeline = sharp(image).resize(width);
           
-          if (format === 'webp') {
-            await pipeline.webp({ quality: 80 }).toFile(outputPath);
-          } else {
-            await pipeline.jpeg({ quality: 80, progressive: true }).toFile(outputPath);
-          }
+          await pipeline.webp({ quality: 80 }).toFile(outputPath);
         }
       }
     }

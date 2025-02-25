@@ -24,6 +24,14 @@ const ReadingForm = lazy(() => import('./components/ReadingForm'));
 const ReadingOutput = lazy(() => import('./components/ReadingOutput'));
 const FAQ = lazy(() => import('./components/FAQ'));
 
+const ErrorBoundary: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <React.Suspense fallback={<LoadingSpinner size="large" message="Loading..." />}>
+      {children}
+    </React.Suspense>
+  );
+};
+
 const App = (): JSX.Element => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
@@ -182,30 +190,32 @@ const App = (): JSX.Element => {
             <span>←</span>
             Back to Reading Types
           </button>
-          <Suspense fallback={<LoadingSpinner />}>
+          <ErrorBoundary>
             <ReadingForm
               readingType={selectedReadingType}
               onSubmit={handleReadingSubmit}
               isDarkMode={isDarkMode}
             />
-            {readingOutput && (
-              <div className="mt-8">
+          </ErrorBoundary>
+          {readingOutput && (
+            <div className="mt-8">
+              <ErrorBoundary>
                 <ReadingOutput
                   readingType={selectedReadingType}
                   isDarkMode={isDarkMode}
                   reading={readingOutput}
                   isLoading={isLoading}
                 />
-                <button
-                  onClick={() => setSelectedReadingType(null)}
-                  className="mt-8 flex items-center gap-2 px-4 py-2 text-white bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg transition-colors mx-auto"
-                >
-                  <span>←</span>
-                  Back to Reading Types
-                </button>
-              </div>
-            )}
-          </Suspense>
+              </ErrorBoundary>
+              <button
+                onClick={() => setSelectedReadingType(null)}
+                className="mt-8 flex items-center gap-2 px-4 py-2 text-white bg-indigo-900/40 hover:bg-indigo-900/60 rounded-lg transition-colors mx-auto"
+              >
+                <span>←</span>
+                Back to Reading Types
+              </button>
+            </div>
+          )}
         </div>
       );
     }
@@ -264,7 +274,11 @@ if (authLoading) {
       <main className="container mx-auto px-4 py-12">
         {mainContent}  {/* Use mainContent here instead of the inline conditions */}
       </main>
-      {!selectedReadingType && !currentPage && <FAQ isDarkMode={isDarkMode} />}
+      {!selectedReadingType && !currentPage && (
+        <ErrorBoundary>
+          <FAQ isDarkMode={isDarkMode} />
+        </ErrorBoundary>
+      )}
       <Footer
         onPrivacyClick={() => setCurrentPage('privacy')}
         onTermsClick={() => setCurrentPage('terms')}
@@ -275,26 +289,32 @@ if (authLoading) {
 
       <Suspense fallback={<LoadingSpinner />}>
         {showLoginModal && (
-          <LoginModal
-            isOpen={showLoginModal}
-            onClose={() => setShowLoginModal(false)}
-          />
+          <ErrorBoundary>
+            <LoginModal
+              isOpen={showLoginModal}
+              onClose={() => setShowLoginModal(false)}
+            />
+          </ErrorBoundary>
         )}
         {showPaymentModal && (
-          <UpgradeModal
-            isOpen={showPaymentModal}
-            onClose={() => setShowPaymentModal(false)}
-            onSubscribe={handleSubscribe}
-          />
+          <ErrorBoundary>
+            <UpgradeModal
+              isOpen={showPaymentModal}
+              onClose={() => setShowPaymentModal(false)}
+              onSubscribe={handleSubscribe}
+            />
+          </ErrorBoundary>
         )}
       </Suspense>
       
       {currentStep && (
-        <TourGuide
-          currentStep={currentStep}
-          onClose={() => setCurrentStep(null)}
-          nextStep={nextStep}
-        />
+        <ErrorBoundary>
+          <TourGuide
+            currentStep={currentStep}
+            onClose={() => setCurrentStep(null)}
+            nextStep={nextStep}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );

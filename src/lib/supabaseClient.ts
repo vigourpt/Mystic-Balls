@@ -92,29 +92,40 @@ export const checkProject = async () => {
   }
 };
 
-// Then create the client and expose to window
-export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    storage: localStorage,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    flowType: 'pkce',           // Change back to pkce
-    storageKey: 'mystic-balls-auth',
-    redirectTo: `${siteUrl}/auth/callback?source=oauth`
-  },
-  global: {
-    headers: {
-      'x-site-url': siteUrl,
-      'apikey': supabaseAnonKey
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.error('Supabase initialization failed: Missing environment variables VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY.');
+  throw new Error('Supabase environment variables are not defined.');
+}
+
+let supabaseClient: ReturnType<typeof createClient>;
+
+try {
+  supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true,
+      storage: localStorage,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+      flowType: 'pkce',           // Change back to pkce
+      storageKey: 'mystic-balls-auth',
+      redirectTo: `${siteUrl}/auth/callback?source=oauth`
+    },
+    global: {
+      headers: {
+        'x-site-url': siteUrl,
+        'apikey': supabaseAnonKey
+      }
+    },
+    realtime: {
+      params: {
+        eventsPerSecond: 1
+      }
     }
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 1
-    }
-  }
-});
+  });
+} catch (error) {
+  console.error('Error initializing Supabase client:', error);
+  throw error;
+}
 
 // Add this line to expose supabase client to window for debugging
 if (typeof window !== 'undefined') {
