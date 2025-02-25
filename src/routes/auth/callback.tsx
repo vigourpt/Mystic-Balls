@@ -14,28 +14,31 @@ const AuthCallback = () => {
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
 
+        console.log('OAuth callback parameters:', { error, accessToken, refreshToken });
+
         if (error) {
-          console.error('OAuth error:', error);
+          console.error('OAuth error received:', error);
           navigate('/?error=authentication_failed');
           return;
         }
 
         if (accessToken && refreshToken) {
-          const { error: sessionError } = await supabaseClient.auth.setSession({
+          console.log('Attempting to set session with received tokens...');
+          const { data: session, error: sessionError } = await supabaseClient.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
           });
 
-          if (sessionError) {
-            console.error('Error setting session:', sessionError);
+          if (sessionError || !session) {
+            console.error('Failed to establish session:', sessionError);
             navigate('/?error=session_failed');
             return;
           }
 
-          console.log('Authentication successful');
+          console.log('Session successfully established:', session);
           navigate('/');
         } else {
-          console.warn('Missing tokens in the callback URL.');
+          console.warn('OAuth callback missing required tokens.');
           navigate('/?error=missing_tokens');
         }
       } catch (err) {

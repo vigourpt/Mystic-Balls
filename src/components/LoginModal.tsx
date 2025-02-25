@@ -99,6 +99,8 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
       } else {
         setError(googleErrorMessage);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
