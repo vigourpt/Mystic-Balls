@@ -8,9 +8,14 @@ const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
 
 // Move functions before they're used
 export const checkHealth = async () => {
+  const timeout = 5000; // 5 seconds timeout
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Health check timed out')), timeout)
+  );
+
   try {
     // Change to a simple status check endpoint
-    const response = await fetch(`${supabaseUrl}/rest/v1/`, {
+    const healthCheckPromise = fetch(`${supabaseUrl}/rest/v1/`, {
       method: 'GET',
       headers: {
         'apikey': supabaseAnonKey,
@@ -19,13 +24,15 @@ export const checkHealth = async () => {
         'Accept': 'application/json'
       }
     });
+
+    const response = await Promise.race([healthCheckPromise, timeoutPromise]);
     const responseText = await response.text();
     console.log('Raw response:', responseText);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     console.log('Health check response:', { 
       status: response.status, 
       ok: response.ok,
@@ -33,7 +40,11 @@ export const checkHealth = async () => {
     });
     return { status: response.status, ok: response.ok };
   } catch (error) {
-    console.error('Health check failed:', error);
+    console.error('Health check failed:', {
+      message: error.message,
+      stack: error.stack,
+      url: supabaseUrl
+    });
     throw error;
   }
 };

@@ -4,6 +4,8 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32" />
     <link rel="preload" href="/src/main.tsx" as="script" />
+    <link rel="preload" href="/fonts/Roboto-Regular.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <link rel="preload" href="/fonts/Roboto-Bold.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://*.supabase.co https://*.supabase.in; img-src 'self' data: https: blob:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.supabase.co https://*.supabase.in https://accounts.google.com https://www.googleapis.com; frame-src 'self' https://accounts.google.com https://www.googleapis.com; connect-src 'self' https://*.supabase.co https://accounts.google.com https://www.googleapis.com https://*.supabase.in https://api.stripe.com wss://*.supabase.co https://accounts.google.com https://www.googleapis.com;">
     <title>Mystic Insights - Spiritual Readings & Guidance</title>
@@ -46,13 +48,17 @@
   <body>
     <div id="initial-loader">
       <div class="loader"></div>
+      <p style="color: white; margin-top: 16px; font-size: 14px;">Loading Mystic Insights...</p>
     </div>
     <div id="root"></div>
     <noscript>
       <div style="color: white; text-align: center; padding: 20px; background: #1a1a2e;">
         <p>JavaScript is required to run this application. Please enable JavaScript in your browser settings.</p>
+        <p>If you are experiencing issues, please contact support at <a href="mailto:support@mysticballs.com" style="color: #ff6b6b;">support@mysticballs.com</a>.</p>
       </div>
     </noscript>
+    <link rel="preload" href="/images/hero-banner.jpg" as="image" />
+    <link rel="preload" href="/images/logo.png" as="image" />
     <script>
       console.log('Page starting to load...');
       
