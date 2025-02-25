@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions';
 
-export const handler: Handler = async (event) => {
+export const handler = async (event) => {
   const isPreviewContext = process.env.CONTEXT === 'deploy-preview';
 
   return {
