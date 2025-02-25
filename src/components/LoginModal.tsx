@@ -72,26 +72,33 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
     setIsLoading(true);
     
     try {
-      const { error } = await signInWithGoogle();
+      const { data, error } = await signInWithGoogle();
       if (error) throw error;
-      // Close modal on successful Google sign in
+
+      // Ensure session is properly set before closing the modal
+      const { data: session, error: sessionError } = await supabaseClient.auth.getSession();
+      if (sessionError || !session) {
+        throw new Error('Failed to establish session. Please try again.');
+      }
+
+      console.log('Google sign-in successful:', data);
       onClose();
     } catch (err: unknown) {
-      console.error('Google sign in error:', err);
-      const googleErrorMessage = 'Failed to sign in with Google';
+      console.error('Google sign-in error:', err);
+      const googleErrorMessage = 'Failed to sign in with Google. Please try again later.';
       if (err instanceof Error) {
         if (err.message.toLowerCase().includes('redirect_uri')) {
           setError('Invalid redirect URI. Please contact support.');
         } else if (err.message.toLowerCase().includes('access_denied')) {
           setError('Access denied. Please ensure you have granted the necessary permissions.');
+        } else if (err.message.toLowerCase().includes('network')) {
+          setError('Network error. Please check your connection and try again.');
         } else {
           setError(err.message || googleErrorMessage);
         }
       } else {
-        console.error('Unknown error:', err);
         setError(googleErrorMessage);
       }
-      setIsLoading(false);
     }
   };
 

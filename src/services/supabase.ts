@@ -12,10 +12,17 @@ const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
 // Remove the export block and keep only the individual exports
 export const signInWithGoogle = async () => {
   try {
-    return await supabaseClient.auth.signInWithOAuth({
+    console.log('Initiating Google sign-in process...');
+    const redirectTo = `${siteUrl}/auth/callback`;
+
+    if (!redirectTo.startsWith('http')) {
+      throw new Error(`Invalid redirect URL: ${redirectTo}`);
+    }
+
+    const response = await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${siteUrl}/auth/callback`,
+        redirectTo,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
@@ -24,9 +31,15 @@ export const signInWithGoogle = async () => {
         }
       }
     });
+
+    console.log('Google sign-in response:', response);
+    return response;
   } catch (error: unknown) {
-    console.error('Google sign in error:', error);
-    throw error;
+    console.error('Google sign-in error:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : null,
+    });
+    throw new Error('Failed to sign in with Google. Please try again later.');
   }
 };
 
