@@ -80,7 +80,13 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
       console.error('Google sign in error:', err);
       const googleErrorMessage = 'Failed to sign in with Google';
       if (err instanceof Error) {
-        setError(err.message || googleErrorMessage);
+        if (err.message.toLowerCase().includes('redirect_uri')) {
+          setError('Invalid redirect URI. Please contact support.');
+        } else if (err.message.toLowerCase().includes('access_denied')) {
+          setError('Access denied. Please ensure you have granted the necessary permissions.');
+        } else {
+          setError(err.message || googleErrorMessage);
+        }
       } else {
         console.error('Unknown error:', err);
         setError(googleErrorMessage);
@@ -93,13 +99,21 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
   // Update the checkUser function to use supabaseClient
   React.useEffect(() => {
     const checkUser = async () => {
-      const { data: { user } } = await supabaseClient.auth.getUser();
-      // Only close if we have a successful auth AND no errors
-      if (!isLoading && !error && !confirmEmail && user) {
-        onClose();
+      try {
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+        if (authError) {
+          console.error('Error fetching user:', authError);
+          return;
+        }
+        // Only close if we have a successful auth AND no errors
+        if (!isLoading && !error && !confirmEmail && user) {
+          onClose();
+        }
+      } catch (err) {
+        console.error('Unexpected error during user check:', err);
       }
     };
-    
+
     checkUser();
   }, [isLoading, error, confirmEmail, onClose]);
 
