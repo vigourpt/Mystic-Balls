@@ -9,23 +9,38 @@ const AuthCallback = () => {
     const handleAuthCallback = async () => {
       try {
         // Attempt to retrieve the session
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        const params = new URLSearchParams(window.location.search);
+        const error = params.get('error');
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
 
         if (error) {
-          console.error('Error during authentication callback:', error);
+          console.error('OAuth error:', error);
+          navigate('/?error=authentication_failed');
+          return;
         }
 
-        if (session) {
-          console.log('Authentication successful:', session);
+        if (accessToken && refreshToken) {
+          const { error: sessionError } = await supabaseClient.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+
+          if (sessionError) {
+            console.error('Error setting session:', sessionError);
+            navigate('/?error=session_failed');
+            return;
+          }
+
+          console.log('Authentication successful');
+          navigate('/');
         } else {
-          console.warn('No session found during authentication callback.');
+          console.warn('Missing tokens in the callback URL.');
+          navigate('/?error=missing_tokens');
         }
-
-        // Redirect to the home page after processing
-        navigate('/');
       } catch (err) {
         console.error('Unexpected error during authentication callback:', err);
-        navigate('/');
+        navigate('/?error=unexpected_error');
       }
     };
 

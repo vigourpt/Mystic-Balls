@@ -80,7 +80,13 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
       console.error('Google sign in error:', err);
       const googleErrorMessage = 'Failed to sign in with Google';
       if (err instanceof Error) {
-        setError(err.message || googleErrorMessage);
+        if (err.message.toLowerCase().includes('redirect_uri')) {
+          setError('Invalid redirect URI. Please contact support.');
+        } else if (err.message.toLowerCase().includes('access_denied')) {
+          setError('Access denied. Please ensure you have granted the necessary permissions.');
+        } else {
+          setError(err.message || googleErrorMessage);
+        }
       } else {
         console.error('Unknown error:', err);
         setError(googleErrorMessage);
