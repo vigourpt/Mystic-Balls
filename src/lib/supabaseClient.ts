@@ -95,10 +95,10 @@ export const checkProject = async () => {
 // Then create the client and expose to window
 export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
-    persistSession: false,
+    persistSession: true,
     storage: localStorage,
-    autoRefreshToken: false,
-    detectSessionInUrl: true,    // Change to true
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
     flowType: 'pkce',           // Change back to pkce
     storageKey: 'mystic-balls-auth',
     redirectTo: `${siteUrl}/auth/callback`
