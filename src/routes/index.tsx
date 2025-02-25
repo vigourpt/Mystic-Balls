@@ -10,7 +10,7 @@ const AppRoutes = () => {
         {/* Main application route */}
         <Route path="/" element={<App />} />
 
-        {/* Auth callback route */}
+        {/* Auth callback route for handling Supabase authentication */}
         <Route path="/auth/callback" element={<AuthCallback />} />
 
         {/* Add additional routes here as needed */}
