@@ -17,45 +17,19 @@ const AuthCallback = () => {
         }, 10000); // 10 seconds timeout
         setTimeoutId(timeout);
 
-        // Parse query parameters from the URL
-        const params = new URLSearchParams(window.location.search);
-        const error = params.get('error');
-        const accessToken = params.get('access_token');
-        const refreshToken = params.get('refresh_token');
-        const expiresIn = params.get('expires_in');
-        const state = params.get('state');
-        console.log('OAuth callback state:', state); // Log state for debugging
+        // Let Supabase handle the OAuth callback automatically
+        const { data, error } = await supabaseClient.auth.getSessionFromUrl({
+          storeSession: true,
+        });
 
-        if (error) {
-          console.error('OAuth error:', error);
-          console.error('Error details:', {
-            error,
-            url: window.location.href
-          });
+        if (error || !data.session) {
+          console.error('Error during OAuth callback:', error);
           navigate('/?error=authentication_failed');
           return;
         }
 
-        if (accessToken && refreshToken) {
-          const { data, error: sessionError } = await supabaseClient.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            expires_in: expiresIn ? parseInt(expiresIn, 10) : undefined,
-          });
-
-          if (sessionError || !data.session) {
-            console.error('Error setting session:', sessionError);
-            navigate('/?error=session_failed');
-            return;
-          }
-
-          console.log('Authentication successful:', data.session);
-          navigate('/');
-        } else {
-          console.warn('Missing tokens in the callback URL.');
-          console.warn('Callback URL:', window.location.href);
-          navigate('/?error=missing_tokens');
-        }
+        console.log('Authentication successful:', data.session);
+        navigate('/');
       } catch (err) {
         console.error('Unexpected error during authentication callback:', err);
         console.error('Error details:', {
