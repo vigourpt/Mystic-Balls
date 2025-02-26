@@ -23,9 +23,15 @@ const AuthCallback = () => {
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
         const expiresIn = params.get('expires_in');
+        const state = params.get('state');
+        console.log('OAuth callback state:', state); // Log state for debugging
 
         if (error) {
           console.error('OAuth error:', error);
+          console.error('Error details:', {
+            error,
+            url: window.location.href
+          });
           navigate('/?error=authentication_failed');
           return;
         }
@@ -47,10 +53,15 @@ const AuthCallback = () => {
           navigate('/');
         } else {
           console.warn('Missing tokens in the callback URL.');
+          console.warn('Callback URL:', window.location.href);
           navigate('/?error=missing_tokens');
         }
       } catch (err) {
         console.error('Unexpected error during authentication callback:', err);
+        console.error('Error details:', {
+          message: err instanceof Error ? err.message : 'Unknown error',
+          stack: err instanceof Error ? err.stack : 'No stack trace'
+        });
         navigate('/?error=unexpected_error');
       } finally {
         setIsLoading(false); // Stop loading state
