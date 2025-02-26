@@ -20,7 +20,9 @@ export const signInWithGoogle = async () => {
           access_type: 'offline',
           prompt: 'consent',
           include_granted_scopes: 'true',
-          state: crypto.randomUUID()
+          const state = crypto.randomUUID();
+          localStorage.setItem('oauth_state', state);
+          state
         }
       }
     });

@@ -20,12 +20,21 @@ const AuthCallback = () => {
         // Parse query parameters from the URL
         const params = new URLSearchParams(window.location.search);
         const error = params.get('error');
+        const stateFromUrl = params.get('state');
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
 
         if (error) {
           console.error('OAuth error:', error);
           navigate('/auth/error?type=oauth_error');
+          return;
+        }
+
+        const stateFromStorage = localStorage.getItem('oauth_state');
+
+        if (stateFromUrl !== stateFromStorage) {
+          console.error('State mismatch error.');
+          navigate('/auth/error?type=state_mismatch');
           return;
         }
 
