@@ -15,13 +15,12 @@ export const signInWithGoogle = async () => {
     return await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${siteUrl}/auth/callback?source=google`,
+        redirectTo: `${siteUrl}/auth/callback`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
           include_granted_scopes: 'true',
-          state: 'secure_random_state',
-          hd: 'mysticballs.com'
+          state: 'secure_random_state'
         }
       }
     });

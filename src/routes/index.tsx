@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import AuthCallback from './auth/callback';
+import AuthCallback from './AuthCallback';
 import App from '../App';
 
 const AppRoutes = () => {

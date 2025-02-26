@@ -119,7 +119,7 @@ try {
       detectSessionInUrl: true,
       flowType: 'pkce',
       storageKey: 'mystic-balls-auth',
-      redirectTo: `${siteUrl}/auth/callback`
+      redirectTo: `${siteUrl}/auth/callback?source=oauth`
     },
     global: {
       headers: {

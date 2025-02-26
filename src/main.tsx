@@ -1,6 +1,7 @@
 /** @jsxImportSource react */
 import React, { StrictMode, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppRoutes from './routes';
 import AuthCallback from './routes/AuthCallback';
 import './index.css';
