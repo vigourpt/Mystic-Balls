@@ -113,9 +113,9 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
     storage: localStorage,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    flowType: 'pkce',
+    flowType: 'implicit',
     storageKey: 'mystic-balls-auth',
-    redirectTo: `${siteUrl}/auth/callback?source=google`
+    redirectTo: `${siteUrl}/auth/callback`
   },
   global: {
     headers: {
