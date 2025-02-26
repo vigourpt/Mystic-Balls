@@ -21,6 +21,7 @@ const AuthCallback = () => {
         const params = new URLSearchParams(window.location.search);
         const error = params.get('error');
         const stateFromUrl = params.get('state');
+        const stateFromStorage = localStorage.getItem('oauth_state');
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
 
@@ -32,11 +33,12 @@ const AuthCallback = () => {
 
         const stateFromStorage = localStorage.getItem('oauth_state');
 
-        if (stateFromUrl !== stateFromStorage) {
-          console.error('State mismatch error.');
+        if (!stateFromUrl || stateFromUrl !== stateFromStorage) {
+          console.error('State mismatch or missing state parameter.');
           navigate('/auth/error?type=state_mismatch');
           return;
         }
+        localStorage.removeItem('oauth_state'); // Clean up state after validation
 
         if (accessToken && refreshToken) {
           const { error: sessionError } = await supabaseClient.auth.setSession({
