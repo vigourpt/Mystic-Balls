@@ -5,8 +5,12 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const siteUrl = import.meta.env.CONTEXT === 'deploy-preview'
   ? `https://${import.meta.env.DEPLOY_PRIME_URL}`
+  : import.meta.env.CONTEXT === 'deploy-preview'
+  ? `https://${import.meta.env.DEPLOY_PRIME_URL}`
   : import.meta.env.DEV
+ 
   ? 'http://localhost:5173'
+ 
   : PRODUCTION_URL;
 
 // Move functions before they're used
