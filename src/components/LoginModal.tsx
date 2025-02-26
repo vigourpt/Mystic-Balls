@@ -72,9 +72,13 @@ const LoginModal: FC<Props> = ({ isOpen, onClose }) => {
     setIsLoading(true);
     
     try {
-      const { error } = await signInWithGoogle();
-      if (error) throw error;
-      // Close modal on successful Google sign in
+      const { data, error } = await signInWithGoogle();
+      console.log('Google sign-in response:', data); // Debugging log
+      if (error) {
+        console.error('Google sign-in error:', error); // Debugging log
+        throw error;
+      }
+      console.log('Google sign-in successful, closing modal.'); // Debugging log
       onClose();
     } catch (err: unknown) {
       console.error('Google sign in error:', err);

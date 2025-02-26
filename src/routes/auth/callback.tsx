@@ -22,6 +22,7 @@ const AuthCallback = () => {
         const error = params.get('error');
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
+        const expiresIn = params.get('expires_in');
 
         if (error) {
           console.error('OAuth error:', error);
@@ -30,18 +31,19 @@ const AuthCallback = () => {
         }
 
         if (accessToken && refreshToken) {
-          const { error: sessionError } = await supabaseClient.auth.setSession({
+          const { data, error: sessionError } = await supabaseClient.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken,
+            expires_in: expiresIn ? parseInt(expiresIn, 10) : undefined,
           });
 
-          if (sessionError) {
+          if (sessionError || !data.session) {
             console.error('Error setting session:', sessionError);
             navigate('/?error=session_failed');
             return;
           }
 
-          console.log('Authentication successful');
+          console.log('Authentication successful:', data.session);
           navigate('/');
         } else {
           console.warn('Missing tokens in the callback URL.');

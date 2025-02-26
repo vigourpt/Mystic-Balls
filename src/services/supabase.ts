@@ -15,12 +15,13 @@ export const signInWithGoogle = async () => {
     return await supabaseClient.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${siteUrl}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback?source=google`,
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
           include_granted_scopes: 'true',
-          state: 'secure_random_state'
+          state: 'secure_random_state',
+          hd: 'example.com' // Optional: restrict to specific Google Workspace domain
         }
       }
     });
