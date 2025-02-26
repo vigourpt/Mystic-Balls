@@ -29,23 +29,28 @@ const AppInitializer = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    try {
-      setIsLoading(true);
-      root.render(
-        process.env.NODE_ENV === 'production' ? (
-          <StrictMode>
+    const initializeApp = async () => {
+      try {
+        setIsLoading(true);
+        await checkProject(); // Ensure Supabase connection is healthy
+        root.render(
+          process.env.NODE_ENV === 'production' ? (
+            <StrictMode>
+              <AppRoutes />
+            </StrictMode>
+          ) : (
             <AppRoutes />
-          </StrictMode>
-        ) : (
-          <AppRoutes />
-        )
-      );
-      setIsLoading(false);
-    } catch (err) {
-      console.error('Error rendering the app:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
-      setIsLoading(false);
-    }
+          )
+        );
+        setIsLoading(false);
+      } catch (err) {
+        console.error('Error initializing the app:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
   }, []);
 
   if (isLoading) {

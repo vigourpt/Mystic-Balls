@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo, Suspense, lazy } from 'react';
+import { useState, useEffect } from './lib/supabaseClient';
+import { useCallback, useMemo, Suspense, lazy } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useAuthState } from './hooks/useAuthState';
 import { READING_TYPES } from './data/readingTypes';

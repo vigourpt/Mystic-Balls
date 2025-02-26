@@ -140,6 +140,11 @@ if (typeof window !== 'undefined') {
   };
 }
 
+// Improved error handling for preview environments
+if (import.meta.env.CONTEXT === 'deploy-preview') {
+  console.warn('Running in deploy-preview context. Ensure all environment variables are correctly set.');
+}
+
 export const decrementFreeReadings = async (userId: string): Promise<void> => {
   // First get the current count
   const { data: profile } = await supabaseClient
