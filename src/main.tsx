@@ -2,6 +2,7 @@
 import React, { StrictMode, useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import AppRoutes from './routes';
+import AuthCallback from './routes/AuthCallback';
 import './index.css';
 import LoadingSpinner from './components/LoadingSpinner'; // Assuming this component exists
 
@@ -65,4 +66,13 @@ const AppInitializer = () => {
   return null;
 };
 
-root.render(<AppInitializer />);
+root.render(
+  <StrictMode>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/*" element={<AppInitializer />} />
+      </Routes>
+    </BrowserRouter>
+  </StrictMode>
+);
