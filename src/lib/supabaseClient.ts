@@ -7,9 +7,13 @@ const siteUrl = import.meta.env.CONTEXT === 'deploy-preview'
   ? `https://${import.meta.env.DEPLOY_PRIME_URL}`
   : import.meta.env.CONTEXT === 'deploy-preview'
   ? `https://${import.meta.env.DEPLOY_PRIME_URL}`
+  : import.meta.env.CONTEXT === 'deploy-preview'
+  ? `https://${import.meta.env.DEPLOY_PRIME_URL}`
   : import.meta.env.DEV
  
+ 
   ? 'http://localhost:5173'
+ 
  
   : PRODUCTION_URL;
 
