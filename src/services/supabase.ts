@@ -7,7 +7,11 @@ type Tables = Database['public']['Tables'];
 export type UserProfile = Tables['user_profiles']['Row'];
 
 // Get the site URL based on environment
-const siteUrl = import.meta.env.DEV ? 'http://localhost:5173' : PRODUCTION_URL;
+const siteUrl = import.meta.env.DEV
+  ? 'http://localhost:5173'
+  : import.meta.env.CONTEXT === 'deploy-preview'
+  ? window.location.origin
+  : PRODUCTION_URL;
 
 // Remove the export block and keep only the individual exports
 export const signInWithGoogle = async () => {

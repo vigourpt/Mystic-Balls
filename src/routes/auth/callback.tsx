@@ -24,11 +24,16 @@ const AuthCallback = () => {
 
         if (error || !data.session) {
           console.error('Error during OAuth callback:', error);
+          console.error('Error details:', {
+            message: error?.message || 'Unknown error',
+            stack: error?.stack || 'No stack trace',
+          });
           navigate('/?error=authentication_failed');
           return;
         }
 
         console.log('Authentication successful:', data.session);
+        console.log('Session details:', data.session); // Debugging log
         navigate('/');
       } catch (err) {
         console.error('Unexpected error during authentication callback:', err);
