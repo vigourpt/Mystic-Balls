@@ -1,5 +1,6 @@
 /** @jsxImportSource react */
 import React, { StrictMode, useState, useEffect } from 'react';
+import { checkProject } from './lib/supabaseClient';
 import { createRoot } from 'react-dom/client';
 import AppRoutes from './routes';
 import './index.css';
