@@ -13,7 +13,7 @@ const AuthCallback = () => {
         // Add a timeout to handle long authentication delays
         const timeout = setTimeout(() => {
           console.error('Authentication timeout reached.');
-          navigate('/?error=authentication_timeout');
+          navigate('/auth/error?type=timeout');
         }, 10000); // 10 seconds timeout
         setTimeoutId(timeout);
 
@@ -25,7 +25,7 @@ const AuthCallback = () => {
 
         if (error) {
           console.error('OAuth error:', error);
-          navigate('/?error=authentication_failed');
+          navigate('/auth/error?type=oauth_error');
           return;
         }
 
@@ -37,7 +37,7 @@ const AuthCallback = () => {
 
           if (sessionError) {
             console.error('Error setting session:', sessionError);
-            navigate('/?error=session_failed');
+            navigate('/auth/error?type=session_error');
             return;
           }
 
@@ -45,11 +45,11 @@ const AuthCallback = () => {
           navigate('/');
         } else {
           console.warn('Missing tokens in the callback URL.');
-          navigate('/?error=missing_tokens');
+          navigate('/auth/error?type=missing_tokens');
         }
       } catch (err) {
         console.error('Unexpected error during authentication callback:', err);
-        navigate('/?error=unexpected_error');
+        navigate('/auth/error?type=unexpected_error');
       } finally {
         setIsLoading(false); // Stop loading state
         if (timeoutId) clearTimeout(timeoutId); // Clear timeout
