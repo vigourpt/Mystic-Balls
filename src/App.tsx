@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCallback, useMemo, Suspense, lazy } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useAuthState } from './hooks/useAuthState';

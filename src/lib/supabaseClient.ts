@@ -130,13 +130,17 @@ export const supabaseClient = createClient<Database>(supabaseUrl, supabaseAnonKe
   }
 });
 
-// Add this line to expose supabase client to window for debugging
 if (typeof window !== 'undefined') {
   (window as any).supabase = {
     ...supabaseClient,
     checkHealth,
     checkProject
   };
+}
+
+// Improved error handling for preview environments
+if (import.meta.env.CONTEXT === 'deploy-preview') {
+  console.warn('Running in deploy-preview context. Ensure all environment variables are correctly set.');
 }
 
 // Improved error handling for preview environments
